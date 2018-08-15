@@ -33,14 +33,14 @@ package me.jamiemansfield.bombe.type;
 import java.util.Arrays;
 
 /**
- * Represents a primitive type within Java.
+ * Represents a base type within Java.
  *
  * @see <a href="http://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-BaseType">BaseType</a>
  *
  * @author Jamie Mansfield
  * @since 0.1.0
  */
-public enum PrimitiveType implements Type {
+public enum BaseType implements FieldType {
 
     BYTE('B'),
     CHAR('C'),
@@ -56,11 +56,11 @@ public enum PrimitiveType implements Type {
     private final String obfuscatedView;
 
     /**
-     * Creates a new primitive type, with the given character type.
+     * Creates a new base type, with the given character type.
      *
      * @param key The character key
      */
-    PrimitiveType(final char key) {
+    BaseType(final char key) {
         this.key = key;
         this.obfuscatedView = "" + key;
     }
@@ -71,11 +71,11 @@ public enum PrimitiveType implements Type {
     }
 
     /**
-     * Establishes whether the given key, is a valid primitive
+     * Establishes whether the given key, is a valid base
      * key.
      *
      * @param key The key
-     * @return {@code True} if the key represents a primitive,
+     * @return {@code True} if the key represents a base type;
      *         {@code false} otherwise
      */
     public static boolean isValidPrimitive(final char key) {
@@ -84,12 +84,12 @@ public enum PrimitiveType implements Type {
     }
 
     /**
-     * Gets the {@link PrimitiveType} from the given key.
+     * Gets the {@link BaseType} from the given key.
      *
      * @param key The key
-     * @return The primitive type
+     * @return The base type
      */
-    public static PrimitiveType getFromKey(final char key) {
+    public static BaseType getFromKey(final char key) {
         return Arrays.stream(values())
                 .filter(type -> type.key == key)
                 .findFirst().orElse(null);

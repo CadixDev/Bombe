@@ -33,7 +33,7 @@ package me.jamiemansfield.bombe.type;
 /**
  * Represents a type within Java.
  *
- * @see PrimitiveType
+ * @see BaseType
  * @see ObjectType
  * @see ArrayType
  * @see VoidType
@@ -59,8 +59,8 @@ public interface Type {
             final int arrayDims = type.lastIndexOf('[') + 1;
             return new ArrayType(arrayDims, Type.of(type.substring(arrayDims)));
         }
-        else if (type.length() == 1 && PrimitiveType.isValidPrimitive(type.charAt(0))) {
-            return PrimitiveType.getFromKey(type.charAt(0));
+        else if (type.length() == 1 && BaseType.isValidPrimitive(type.charAt(0))) {
+            return BaseType.getFromKey(type.charAt(0));
         }
         else if (type.length() == 1 && type.charAt(0) == 'V') {
             return VoidType.INSTANCE;

@@ -42,7 +42,7 @@ import java.util.Objects;
  * @author Jamie Mansfield
  * @since 0.1.0
  */
-public class ArrayType implements Type {
+public class ArrayType implements FieldType {
 
     private final int dimCount;
     private final String arrayDims;

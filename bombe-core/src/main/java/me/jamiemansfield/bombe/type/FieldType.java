@@ -30,47 +30,39 @@
 
 package me.jamiemansfield.bombe.type;
 
-import java.util.Objects;
-
 /**
- * Represents an object type within Java.
+ * Represents any type that can be used in a field.
  *
- * @see <a href="http://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-ObjectType">ObjectType</a>
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-FieldType>FieldType</a>
+ * @see BaseType
+ * @see ObjectType
+ * @see ArrayType
  *
  * @author Jamie Mansfield
  * @since 0.1.0
  */
-public class ObjectType implements FieldType {
-
-    private final String className;
-    private final String obfuscatedView;
+public interface FieldType extends Type {
 
     /**
-     * Creates a new object type, of the given class name.
+     * Gets the appropriate {@link FieldType} for the given type.
      *
-     * @param className The class name
+     * @param type The field type
+     * @return The field type
      */
-    public ObjectType(final String className) {
-        this.className = className;
-        this.obfuscatedView = "L" + className + ";";
-    }
-
-    @Override
-    public String toString() {
-        return this.obfuscatedView;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof ObjectType)) return false;
-        final ObjectType that = (ObjectType) obj;
-        return Objects.equals(this.className, that.className);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.className);
+    static FieldType of(final String type) {
+        if (type.startsWith("L")) {
+            // Remove off the 'L' and the ';'.
+            return new ObjectType(type.substring(1, type.length() - 1));
+        }
+        else if (type.startsWith("[")) {
+            // Get the array dimensions count
+            final int arrayDims = type.lastIndexOf('[') + 1;
+            return new ArrayType(arrayDims, Type.of(type.substring(arrayDims)));
+        }
+        else if (type.length() == 1 && BaseType.isValidPrimitive(type.charAt(0))) {
+            return BaseType.getFromKey(type.charAt(0));
+        }
+        throw new RuntimeException("Invalid field type: " + type);
     }
 
 }

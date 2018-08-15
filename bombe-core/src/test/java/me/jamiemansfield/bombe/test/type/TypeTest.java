@@ -31,12 +31,14 @@
 package me.jamiemansfield.bombe.test.type;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import me.jamiemansfield.bombe.type.ArrayType;
+import me.jamiemansfield.bombe.type.BaseType;
+import me.jamiemansfield.bombe.type.FieldType;
 import me.jamiemansfield.bombe.type.ObjectType;
-import me.jamiemansfield.bombe.type.PrimitiveType;
 import me.jamiemansfield.bombe.type.Type;
 import me.jamiemansfield.bombe.type.VoidType;
 import org.junit.jupiter.api.Test;
@@ -50,32 +52,35 @@ public final class TypeTest {
     public void arrayType() {
         final String raw = "[[I";
         final Type type = Type.of(raw);
+        assertNotNull(FieldType.of(raw));
         assertTrue(type instanceof ArrayType, "Type should be an ArrayType!");
         assertEquals(raw, type.toString());
         final ArrayType array = (ArrayType) type;
         assertEquals(2, array.getDimCount());
-        assertEquals(PrimitiveType.INT, array.getComponent());
+        assertEquals(BaseType.INT, array.getComponent());
     }
 
     @Test
-    public void objectTest() {
+    public void objectType() {
         final String raw = "Lme/jamiemansfield/Test;";
         final Type type = Type.of(raw);
+        assertNotNull(FieldType.of(raw));
         assertTrue(type instanceof ObjectType, "Type should be an ObjectType!");
         assertEquals(raw, type.toString());
     }
 
     @Test
-    public void primitiveTest() {
+    public void baseType() {
         final String raw = "Z";
         final Type type = Type.of(raw);
-        assertTrue(type instanceof PrimitiveType, "Type should be an PrimitiveType!");
-        assertEquals(PrimitiveType.BOOLEAN, type);
+        assertNotNull(FieldType.of(raw));
+        assertTrue(type instanceof BaseType, "Type should be an BaseType!");
+        assertEquals(BaseType.BOOLEAN, type);
         assertEquals(raw, type.toString());
     }
 
     @Test
-    public void voidTest() {
+    public void voidType() {
         final String raw = "V";
         final Type type = Type.of(raw);
         assertTrue(type instanceof VoidType, "Type should be an VoidType!");
@@ -84,9 +89,10 @@ public final class TypeTest {
     }
 
     @Test
-    public void invalidTest() {
+    public void invalidType() {
         assertThrows(RuntimeException.class, () -> Type.of("Jungle"));
         assertThrows(RuntimeException.class, () -> Type.of("A"));
+        assertThrows(RuntimeException.class, () -> FieldType.of("V"));
     }
 
 }
