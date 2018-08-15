@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.common.collect.ImmutableMap;
 import me.jamiemansfield.bombe.type.ArrayType;
 import me.jamiemansfield.bombe.type.BaseType;
 import me.jamiemansfield.bombe.type.FieldType;
@@ -43,10 +44,23 @@ import me.jamiemansfield.bombe.type.Type;
 import me.jamiemansfield.bombe.type.VoidType;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 /**
  * Unit tests pertaining to the type model in Bombe.
  */
 public final class TypeTest {
+
+    private static final Map<Class<?>, BaseType> BASE_MAPPINGS = ImmutableMap.<Class<?>, BaseType>builder()
+            .put(Boolean.TYPE, BaseType.BOOLEAN)
+            .put(Character.TYPE, BaseType.CHAR)
+            .put(Byte.TYPE, BaseType.BYTE)
+            .put(Short.TYPE, BaseType.SHORT)
+            .put(Integer.TYPE, BaseType.INT)
+            .put(Long.TYPE, BaseType.LONG)
+            .put(Float.TYPE, BaseType.FLOAT)
+            .put(Double.TYPE, BaseType.DOUBLE)
+            .build();
 
     @Test
     public void arrayType() {
@@ -93,6 +107,23 @@ public final class TypeTest {
         assertThrows(RuntimeException.class, () -> Type.of("Jungle"));
         assertThrows(RuntimeException.class, () -> Type.of("A"));
         assertThrows(RuntimeException.class, () -> FieldType.of("V"));
+    }
+
+    @Test
+    public void ofClass() {
+        final Type stringType = Type.of(String.class);
+        assertTrue(stringType instanceof ObjectType, "Type should be an ObjectType!");
+        assertEquals("Ljava/lang/String;", stringType.toString());
+
+        BASE_MAPPINGS.forEach((klass, type) -> {
+            final Type baseType = Type.of(klass);
+            assertTrue(baseType instanceof BaseType, "Type should be an BaseType!");
+            assertEquals(type, baseType);
+        });
+
+        final Type voidType = Type.of(Void.TYPE);
+        assertTrue(voidType instanceof VoidType, "Type should be an VoidType!");
+        assertEquals(VoidType.INSTANCE, voidType);
     }
 
 }

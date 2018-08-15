@@ -30,6 +30,8 @@
 
 package me.jamiemansfield.bombe.type;
 
+import java.util.regex.Pattern;
+
 /**
  * Represents a type within Java.
  *
@@ -42,6 +44,8 @@ package me.jamiemansfield.bombe.type;
  * @since 0.1.0
  */
 public interface Type {
+
+    Pattern DOT_PATTERN = Pattern.compile(".", Pattern.LITERAL);
 
     /**
      * Gets the appropriate {@link Type} for the given type.
@@ -66,6 +70,50 @@ public interface Type {
             return VoidType.INSTANCE;
         }
         throw new RuntimeException("Invalid type: " + type);
+    }
+
+    /**
+     * Gets the appropriate {@link Type} for the given class.
+     *
+     * @param klass The class
+     * @return The type
+     */
+    static Type of(final Class<?> klass) {
+        if (klass.isPrimitive()) {
+            if (klass == Boolean.TYPE) {
+                return BaseType.BOOLEAN;
+            }
+            else if (klass == Character.TYPE) {
+                return BaseType.CHAR;
+            }
+            else if (klass == Byte.TYPE) {
+                return BaseType.BYTE;
+            }
+            else if (klass == Short.TYPE) {
+                return BaseType.SHORT;
+            }
+            else if (klass == Integer.TYPE) {
+                return BaseType.INT;
+            }
+            else if (klass == Long.TYPE) {
+                return BaseType.LONG;
+            }
+            else if (klass == Float.TYPE) {
+                return BaseType.FLOAT;
+            }
+            else if (klass == Double.TYPE) {
+                return BaseType.DOUBLE;
+            }
+            else if (klass == Void.TYPE) {
+                return VoidType.INSTANCE;
+            }
+            else {
+                throw new RuntimeException("Invalid primitive type: " + klass.getName());
+            }
+        }
+        else {
+            return new ObjectType(DOT_PATTERN.matcher(klass.getName()).replaceAll("/"));
+        }
     }
 
 }
