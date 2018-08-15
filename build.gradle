@@ -1,0 +1,45 @@
+subprojects {
+    apply plugin: 'java'
+
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+
+    group = 'me.jamiemansfield'
+    version = '0.1.0-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile 'org.junit.jupiter:junit-jupiter-api:5.2.0'
+        testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.2.0'
+    }
+
+    javadoc {
+        options.encoding = 'UTF-8'
+        options.charSet = 'UTF-8'
+        options.links(
+                'https://docs.oracle.com/javase/8/docs/api/'
+        )
+    }
+
+    task javadocJar(type: Jar, dependsOn: 'javadoc') {
+        from javadoc.destinationDir
+        classifier = 'javadoc'
+    }
+
+    task sourcesJar(type: Jar, dependsOn: 'classes') {
+        from sourceSets.main.allSource
+        classifier = 'sources'
+    }
+
+    artifacts {
+        archives javadocJar
+        archives sourcesJar
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.9'
+}
