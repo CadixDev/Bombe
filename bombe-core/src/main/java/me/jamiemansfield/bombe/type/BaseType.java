@@ -75,10 +75,10 @@ public enum BaseType implements FieldType {
      * key.
      *
      * @param key The key
-     * @return {@code True} if the key represents a base type;
+     * @return {@code true} if the key represents a base type;
      *         {@code false} otherwise
      */
-    public static boolean isValidPrimitive(final char key) {
+    public static boolean isValidBase(final char key) {
         return Arrays.stream(values())
                 .anyMatch(type -> type.key == key);
     }
