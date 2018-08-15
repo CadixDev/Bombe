@@ -47,7 +47,7 @@ public class ArrayType implements FieldType {
     private final int dimCount;
     private final String arrayDims;
     private final Type component;
-    private final String obfuscatedView;
+    private final String descriptor;
 
     /**
      * Creates a new array type, of the specified array
@@ -60,7 +60,7 @@ public class ArrayType implements FieldType {
         this.dimCount = arrayDims;
         this.arrayDims = Strings.repeat("[", arrayDims);
         this.component = component;
-        this.obfuscatedView = this.arrayDims + component.toString();
+        this.descriptor = this.arrayDims + component.toString();
     }
 
     /**
@@ -83,7 +83,7 @@ public class ArrayType implements FieldType {
 
     @Override
     public String toString() {
-        return this.obfuscatedView;
+        return this.descriptor;
     }
 
     @Override

@@ -45,12 +45,14 @@ public class VoidType implements Type {
      */
     public static final VoidType INSTANCE = new VoidType();
 
+    private static final String DESCRIPTOR = "V";
+
     private VoidType() {
     }
 
     @Override
     public String toString() {
-        return "V";
+        return DESCRIPTOR;
     }
 
 }

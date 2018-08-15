@@ -43,7 +43,7 @@ import java.util.Objects;
 public class ObjectType implements FieldType {
 
     private final String className;
-    private final String obfuscatedView;
+    private final String descriptor;
 
     /**
      * Creates a new object type, of the given class name.
@@ -52,12 +52,21 @@ public class ObjectType implements FieldType {
      */
     public ObjectType(final String className) {
         this.className = className;
-        this.obfuscatedView = "L" + className + ";";
+        this.descriptor = "L" + className + ";";
+    }
+
+    /**
+     * Gets the name of the class of the object.
+     *
+     * @return The class name
+     */
+    public String getClassName() {
+        return this.className;
     }
 
     @Override
     public String toString() {
-        return this.obfuscatedView;
+        return this.descriptor;
     }
 
     @Override

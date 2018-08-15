@@ -53,7 +53,7 @@ public enum BaseType implements FieldType {
     ;
 
     private final char key;
-    private final String obfuscatedView;
+    private final String descriptor;
 
     /**
      * Creates a new base type, with the given character type.
@@ -62,12 +62,12 @@ public enum BaseType implements FieldType {
      */
     BaseType(final char key) {
         this.key = key;
-        this.obfuscatedView = "" + key;
+        this.descriptor = "" + key;
     }
 
     @Override
     public String toString() {
-        return this.obfuscatedView;
+        return this.descriptor;
     }
 
     /**
