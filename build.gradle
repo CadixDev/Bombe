@@ -1,11 +1,16 @@
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'maven'
+    if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
+        apply plugin: 'signing'
+    }
 
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
 
     group = 'me.jamiemansfield'
-    version = '0.1.0-SNAPSHOT'
+    archivesBaseName = project.name.toLowerCase()
+    version = '0.1.0'
 
     repositories {
         mavenCentral()
@@ -16,10 +21,15 @@ subprojects {
         testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.2.0'
     }
 
+    processResources {
+        from 'LICENSE.txt'
+    }
+
     javadoc {
         options.encoding = 'UTF-8'
         options.charSet = 'UTF-8'
         options.links(
+                'https://google.github.io/guava/releases/22.0/api/docs/',
                 'https://docs.oracle.com/javase/8/docs/api/'
         )
     }
@@ -37,6 +47,72 @@ subprojects {
     artifacts {
         archives javadocJar
         archives sourcesJar
+    }
+
+    if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
+        signing {
+            sign configurations.archives
+        }
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                // Maven Central
+                if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
+                    beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                    repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
+                        authentication(userName: ossrhUsername, password: ossrhPassword)
+                    }
+
+                    snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
+                        authentication(userName: ossrhUsername, password: ossrhPassword)
+                    }
+                }
+
+                pom {
+                    artifactId = project.archivesBaseName
+
+                    project {
+                        name = project.name
+                        description = project.description
+                        packaging = 'jar'
+                        url = 'https://www.jamiemansfield.me/projects/bombe'
+                        inceptionYear = 2018
+
+                        scm {
+                            url = 'https://github.com/jamiemansfield/Bombe'
+                            connection = 'scm:git:https://github.com/jamiemansfield/Bombe.git'
+                            developerConnection = 'scm:git:git@github.com:jamiemansfield/Bombe.git'
+                        }
+
+                        issueManagement {
+                            system = 'GitHub'
+                            url = 'https://github.com/jamiemansfield/Bombe/issues'
+                        }
+
+                        licenses {
+                            license {
+                                name = 'BSD 3-Clause'
+                                url = 'https://opensource.org/licenses/BSD-3-Clause'
+                                distribution = 'repo'
+                            }
+                        }
+
+                        developers {
+                            developer {
+                                id = 'jamierocks'
+                                name = 'Jamie Mansfield'
+                                email = 'dev@jamierocks.uk'
+                                url = 'https://www.jamiemansfield.me/'
+                                timezone = 'Europe/London'
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

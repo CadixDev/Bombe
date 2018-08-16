@@ -33,7 +33,7 @@ package me.jamiemansfield.bombe.type;
 /**
  * Represents any type that can be used in a field.
  *
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-FieldType>FieldType</a>
+ * @see <a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-FieldType">FieldType</a>
  * @see BaseType
  * @see ObjectType
  * @see ArrayType
