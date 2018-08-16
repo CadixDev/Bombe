@@ -30,6 +30,8 @@
 
 package me.jamiemansfield.bombe.type;
 
+import me.jamiemansfield.bombe.analysis.InheritanceProvider;
+
 /**
  * Represents a type within Java.
  *
@@ -50,22 +52,10 @@ public interface Type {
      * @return The type
      */
     static Type of(final String type) {
-        if (type.startsWith("L")) {
-            // Remove off the 'L' and the ';'.
-            return new ObjectType(type.substring(1, type.length() - 1));
-        }
-        else if (type.startsWith("[")) {
-            // Get the array dimensions count
-            final int arrayDims = type.lastIndexOf('[') + 1;
-            return new ArrayType(arrayDims, Type.of(type.substring(arrayDims)));
-        }
-        else if (type.length() == 1 && BaseType.isValidBase(type.charAt(0))) {
-            return BaseType.getFromKey(type.charAt(0));
-        }
-        else if (type.length() == 1 && type.charAt(0) == 'V') {
+        if (type.length() == 1 && type.charAt(0) == 'V') {
             return VoidType.INSTANCE;
         }
-        throw new RuntimeException("Invalid type: " + type);
+        return FieldType.of(type);
     }
 
     /**
@@ -75,41 +65,23 @@ public interface Type {
      * @return The type
      */
     static Type of(final Class<?> klass) {
-        if (klass.isPrimitive()) {
-            if (klass == Boolean.TYPE) {
-                return BaseType.BOOLEAN;
-            }
-            else if (klass == Character.TYPE) {
-                return BaseType.CHAR;
-            }
-            else if (klass == Byte.TYPE) {
-                return BaseType.BYTE;
-            }
-            else if (klass == Short.TYPE) {
-                return BaseType.SHORT;
-            }
-            else if (klass == Integer.TYPE) {
-                return BaseType.INT;
-            }
-            else if (klass == Long.TYPE) {
-                return BaseType.LONG;
-            }
-            else if (klass == Float.TYPE) {
-                return BaseType.FLOAT;
-            }
-            else if (klass == Double.TYPE) {
-                return BaseType.DOUBLE;
-            }
-            else if (klass == Void.TYPE) {
-                return VoidType.INSTANCE;
-            }
-            else {
-                throw new RuntimeException("Invalid primitive type: " + klass.getName());
-            }
+        if (klass.isPrimitive() && klass == Void.TYPE) {
+            return VoidType.INSTANCE;
         }
-        else {
-            return new ObjectType(klass.getName());
-        }
+        return FieldType.of(klass);
+    }
+
+    /**
+     * Checks whether this type is an instance of the given {@link Type}, using
+     * data provided by the given {@link InheritanceProvider}.
+     *
+     * @param that The type to check against
+     * @param inheritanceProvider The inheritance provider
+     * @return {@code true} if this type is an instance of the given type;
+     *         {@code false} otherwise
+     */
+    default boolean isInstanceOf(final Type that, final InheritanceProvider inheritanceProvider) {
+        return this.equals(that);
     }
 
 }

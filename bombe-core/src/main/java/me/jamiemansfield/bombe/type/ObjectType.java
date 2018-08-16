@@ -30,6 +30,8 @@
 
 package me.jamiemansfield.bombe.type;
 
+import me.jamiemansfield.bombe.analysis.InheritanceProvider;
+
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -69,6 +71,16 @@ public class ObjectType implements FieldType {
      */
     public String getClassName() {
         return this.className;
+    }
+
+    @Override
+    public boolean isInstanceOf(final Type obj, final InheritanceProvider inheritanceProvider) {
+        if (this == obj) return true;
+        if (!(obj instanceof ObjectType)) return false;
+        final ObjectType that = (ObjectType) obj;
+        return this.equals(that) ||
+                that.getClassName().equals("java/lang/Object") ||
+                inheritanceProvider.getParentsOf(this.className).contains(that.getClassName());
     }
 
     @Override

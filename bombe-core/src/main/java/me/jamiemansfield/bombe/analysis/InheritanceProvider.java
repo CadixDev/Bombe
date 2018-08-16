@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * An inheritance provider stores inheritance information on classes, which
@@ -55,6 +56,24 @@ public interface InheritanceProvider {
      * @return The class information wrapped in an {@link Optional}
      */
     Optional<ClassInfo> provide(final String klass);
+
+    default List<String> getParentsOf(final String klass) {
+        return this.getParentsOf(klass, new ArrayList<>());
+    }
+
+    default List<String> getParentsOf(final String klass, final List<String> parents) {
+        final Consumer<String> addParent = parent -> {
+            if (!parents.contains(parent)) {
+                parents.add(parent);
+                parents.addAll(this.getParentsOf(parent, parents));
+            }
+        };
+        this.provide(klass).ifPresent(info -> {
+            if (info.getSuperName() != null) addParent.accept(info.getSuperName());
+            info.getInterfaces().forEach(addParent);
+        });
+        return parents;
+    }
 
     /**
      * A wrapper used to store inheritance information about classes.

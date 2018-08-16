@@ -31,7 +31,6 @@
 package me.jamiemansfield.bombe.test.type;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -66,7 +65,6 @@ public final class TypeTest {
     public void arrayType() {
         final String raw = "[[I";
         final Type type = Type.of(raw);
-        assertNotNull(FieldType.of(raw));
         assertTrue(type instanceof ArrayType, "Type should be an ArrayType!");
         assertEquals(raw, type.toString());
         final ArrayType array = (ArrayType) type;
@@ -78,7 +76,6 @@ public final class TypeTest {
     public void objectType() {
         final String raw = "Lme/jamiemansfield/Test;";
         final Type type = Type.of(raw);
-        assertNotNull(FieldType.of(raw));
         assertTrue(type instanceof ObjectType, "Type should be an ObjectType!");
         assertEquals(raw, type.toString());
     }
@@ -87,7 +84,6 @@ public final class TypeTest {
     public void baseType() {
         final String raw = "Z";
         final Type type = Type.of(raw);
-        assertNotNull(FieldType.of(raw));
         assertTrue(type instanceof BaseType, "Type should be an BaseType!");
         assertEquals(BaseType.BOOLEAN, type);
         assertEquals(raw, type.toString());
