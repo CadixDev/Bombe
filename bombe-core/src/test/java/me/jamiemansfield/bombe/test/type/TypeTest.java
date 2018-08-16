@@ -126,4 +126,10 @@ public final class TypeTest {
         assertEquals(VoidType.INSTANCE, voidType);
     }
 
+    @Test
+    public void normaliseClass() {
+        final ObjectType test = new ObjectType("java.lang.String");
+        assertEquals("java/lang/String", test.getClassName());
+    }
+
 }

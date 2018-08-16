@@ -30,8 +30,6 @@
 
 package me.jamiemansfield.bombe.type;
 
-import java.util.regex.Pattern;
-
 /**
  * Represents a type within Java.
  *
@@ -44,8 +42,6 @@ import java.util.regex.Pattern;
  * @since 0.1.0
  */
 public interface Type {
-
-    Pattern DOT_PATTERN = Pattern.compile(".", Pattern.LITERAL);
 
     /**
      * Gets the appropriate {@link Type} for the given type.
@@ -112,7 +108,7 @@ public interface Type {
             }
         }
         else {
-            return new ObjectType(DOT_PATTERN.matcher(klass.getName()).replaceAll("/"));
+            return new ObjectType(klass.getName());
         }
     }
 

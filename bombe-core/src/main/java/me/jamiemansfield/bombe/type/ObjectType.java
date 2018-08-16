@@ -31,6 +31,7 @@
 package me.jamiemansfield.bombe.type;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * Represents an object type within Java.
@@ -42,6 +43,12 @@ import java.util.Objects;
  */
 public class ObjectType implements FieldType {
 
+    private static final Pattern DOT_PATTERN = Pattern.compile(".", Pattern.LITERAL);
+
+    private static String normaliseClassName(final String className) {
+        return DOT_PATTERN.matcher(className).replaceAll("/");
+    }
+
     private final String className;
     private final String descriptor;
 
@@ -51,8 +58,8 @@ public class ObjectType implements FieldType {
      * @param className The class name
      */
     public ObjectType(final String className) {
-        this.className = className;
-        this.descriptor = "L" + className + ";";
+        this.className = normaliseClassName(className);
+        this.descriptor = "L" + this.className + ";";
     }
 
     /**
