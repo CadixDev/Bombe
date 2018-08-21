@@ -30,68 +30,44 @@
 
 package me.jamiemansfield.bombe.type;
 
+import me.jamiemansfield.bombe.util.AbstractReader;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Represents any type that can be used in a field.
- *
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-FieldType">FieldType</a>
- * @see BaseType
- * @see ObjectType
- * @see ArrayType
+ * An {@link AbstractReader} for reading {@link MethodDescriptor}s
+ * from their raw {@link String} representation.
  *
  * @author Jamie Mansfield
- * @since 0.1.0
+ * @since 0.2.0
  */
-public interface FieldType extends Type {
+public class MethodDescriptorReader extends TypeReader {
 
-    /**
-     * Gets the appropriate {@link FieldType} for the given type.
-     *
-     * @param type The field type
-     * @return The field type
-     */
-    static FieldType of(final String type) {
-        return new TypeReader(type).readFieldType();
+    public MethodDescriptorReader(final String descriptor) {
+        super(descriptor);
     }
 
     /**
-     * Gets the appropriate {@link FieldType} for the given class.
+     * Reads the next {@link MethodDescriptor} from source.
      *
-     * @param klass The class
-     * @return The field type
+     * @return The type
+     * @throws IllegalStateException If the descriptor is invalid
      */
-    static FieldType of(final Class<?> klass) {
-        if (klass.isPrimitive()) {
-            if (klass == Boolean.TYPE) {
-                return BaseType.BOOLEAN;
-            }
-            else if (klass == Character.TYPE) {
-                return BaseType.CHAR;
-            }
-            else if (klass == Byte.TYPE) {
-                return BaseType.BYTE;
-            }
-            else if (klass == Short.TYPE) {
-                return BaseType.SHORT;
-            }
-            else if (klass == Integer.TYPE) {
-                return BaseType.INT;
-            }
-            else if (klass == Long.TYPE) {
-                return BaseType.LONG;
-            }
-            else if (klass == Float.TYPE) {
-                return BaseType.FLOAT;
-            }
-            else if (klass == Double.TYPE) {
-                return BaseType.DOUBLE;
-            }
-            else {
-                throw new RuntimeException("Invalid base type: " + klass.getName());
-            }
+    public MethodDescriptor read() {
+        final List<FieldType> params = new ArrayList<>();
+
+        if (this.peek() != '(') throw new IllegalStateException("Invalid descriptor provided!");
+        this.advance();
+
+        while (this.hasNext() && this.peek() != ')') {
+            params.add(this.readFieldType());
         }
-        else {
-            return new ObjectType(klass.getName());
-        }
+
+        if (this.peek() != ')') throw new IllegalStateException("Invalid descriptor provided!");
+        this.advance();
+
+        return new MethodDescriptor(params, this.readType());
     }
 
 }

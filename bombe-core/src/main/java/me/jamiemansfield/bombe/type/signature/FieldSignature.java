@@ -68,6 +68,16 @@ public class FieldSignature extends MemberSignature {
     }
 
     /**
+     * Creates a field signature, with the given name.
+     *
+     * @param name The name of the field
+     * @since 0.1.1
+     */
+    public FieldSignature(final String name) {
+        this(name, (FieldType) null);
+    }
+
+    /**
      * Gets the {@link FieldType} of the field, if present.
      *
      * @return The field's type, wrapped in an {@link Optional}

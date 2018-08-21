@@ -50,7 +50,7 @@ public final class MethodDescriptorTest {
     @Test
     public void noParams() {
         final String raw = "()V";
-        final MethodDescriptor descriptor = MethodDescriptor.compile(raw);
+        final MethodDescriptor descriptor = MethodDescriptor.of(raw);
         assertEquals(raw, descriptor.toString());
         assertTrue(descriptor.getParamTypes().isEmpty());
         assertEquals(descriptor.getReturnType(), VoidType.INSTANCE);
@@ -61,7 +61,7 @@ public final class MethodDescriptorTest {
         // array of objects
         {
             final String raw = "([Ljava/lang/String;)V";
-            final MethodDescriptor descriptor = MethodDescriptor.compile(raw);
+            final MethodDescriptor descriptor = MethodDescriptor.of(raw);
             assertEquals(raw, descriptor.toString());
             assertFalse(descriptor.getParamTypes().isEmpty());
             assertEquals(1, descriptor.getParamTypes().size());
@@ -72,7 +72,7 @@ public final class MethodDescriptorTest {
         // array of bases
         {
             final String raw = "([[I)V";
-            final MethodDescriptor descriptor = MethodDescriptor.compile(raw);
+            final MethodDescriptor descriptor = MethodDescriptor.of(raw);
             assertEquals(raw, descriptor.toString());
             assertFalse(descriptor.getParamTypes().isEmpty());
             assertEquals(1, descriptor.getParamTypes().size());
@@ -85,7 +85,7 @@ public final class MethodDescriptorTest {
     @Test
     public void objectParams() {
         final String raw = "(Ljava/lang/String;Ljava/lang/String;)V";
-        final MethodDescriptor descriptor = MethodDescriptor.compile(raw);
+        final MethodDescriptor descriptor = MethodDescriptor.of(raw);
         assertEquals(raw, descriptor.toString());
         assertFalse(descriptor.getParamTypes().isEmpty());
         assertEquals(2, descriptor.getParamTypes().size());
@@ -98,7 +98,7 @@ public final class MethodDescriptorTest {
     @Test
     public void baseParams() {
         final String raw = "(II)V";
-        final MethodDescriptor descriptor = MethodDescriptor.compile(raw);
+        final MethodDescriptor descriptor = MethodDescriptor.of(raw);
         assertEquals(raw, descriptor.toString());
         assertFalse(descriptor.getParamTypes().isEmpty());
         assertEquals(2, descriptor.getParamTypes().size());
@@ -110,7 +110,7 @@ public final class MethodDescriptorTest {
     @Test
     public void invalidDescriptors() {
         // Void is not a FieldType, and cannot be used as a method parameter
-        assertThrows(RuntimeException.class, () -> MethodDescriptor.compile("(V)V"));
+        assertThrows(RuntimeException.class, () -> MethodDescriptor.of("(V)V"));
     }
 
 }

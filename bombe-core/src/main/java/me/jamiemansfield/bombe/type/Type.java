@@ -52,10 +52,7 @@ public interface Type {
      * @return The type
      */
     static Type of(final String type) {
-        if (type.length() == 1 && type.charAt(0) == 'V') {
-            return VoidType.INSTANCE;
-        }
-        return FieldType.of(type);
+        return new TypeReader(type).readType();
     }
 
     /**

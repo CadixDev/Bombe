@@ -63,7 +63,7 @@ public class MethodSignature extends MemberSignature {
      * @param descriptor The method's raw descriptor
      */
     public MethodSignature(final String name, final String descriptor) {
-        this(name, MethodDescriptor.compile(descriptor));
+        this(name, MethodDescriptor.of(descriptor));
     }
 
     /**

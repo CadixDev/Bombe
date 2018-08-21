@@ -100,9 +100,8 @@ public final class TypeTest {
 
     @Test
     public void invalidType() {
-        assertThrows(RuntimeException.class, () -> Type.of("Jungle"));
-        assertThrows(RuntimeException.class, () -> Type.of("A"));
-        assertThrows(RuntimeException.class, () -> FieldType.of("V"));
+        assertThrows(IllegalStateException.class, () -> Type.of("A"));
+        assertThrows(IllegalStateException.class, () -> FieldType.of("V"));
     }
 
     @Test
