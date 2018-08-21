@@ -30,8 +30,6 @@
 
 package me.jamiemansfield.bombe.type;
 
-import com.google.common.collect.Lists;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -60,76 +58,8 @@ public final class MethodDescriptor {
      * @param descriptor The raw method descriptor
      * @return The descriptor
      */
-    public static MethodDescriptor compile(final String descriptor) {
-        // Grab the raw parameters and return from the signature
-        final String rawParams = descriptor.substring(descriptor.indexOf('(') + 1, descriptor.indexOf(')'));
-        final String rawReturn = descriptor.substring(descriptor.indexOf(')') + 1);
-
-        // Param Types
-        final List<FieldType> paramTypes = Lists.newArrayList();
-
-        boolean isParsingObject = false;
-        StringBuilder objectBuilder = new StringBuilder();
-
-        boolean isParsingArray = false;
-        int arrayDim = 0;
-
-        for (final char c : rawParams.toCharArray()) {
-            if (isParsingObject) {
-                // We're parsing an object
-                if (c == ';') {
-                    // This symbol is the end of an object
-                    final ObjectType componentType = new ObjectType(objectBuilder.toString());
-
-                    if (isParsingArray) {
-                        paramTypes.add(new ArrayType(arrayDim, componentType));
-
-                        // Return parsingArray state back to normal
-                        isParsingArray = false;
-                        arrayDim = 0;
-                    } else {
-                        paramTypes.add(componentType);
-                    }
-
-                    // Return parsingObject state back to normal
-                    isParsingObject = false;
-                    objectBuilder = new StringBuilder();
-                }
-                else {
-                    // Still parsing the object
-                    objectBuilder.append(c);
-                }
-            } else {
-                if (c == 'L') {
-                    // This symbol is the start of an object
-                    isParsingObject = true;
-                }
-                else if (c == '[') {
-                    // This symbol is an array dimension
-                    isParsingArray = true;
-                    arrayDim++;
-                }
-                else if(BaseType.isValidBase(c)) {
-                    // This symbol is a base type
-                    final BaseType componentType = BaseType.getFromKey(c);
-
-                    if (isParsingArray) {
-                        paramTypes.add(new ArrayType(arrayDim, componentType));
-
-                        // Return parsingArray state back to normal
-                        isParsingArray = false;
-                        arrayDim = 0;
-                    } else {
-                        paramTypes.add(componentType);
-                    }
-                }
-                else {
-                    throw new RuntimeException("Invalid type: " + c);
-                }
-            }
-        }
-
-        return new MethodDescriptor(paramTypes, Type.of(rawReturn));
+    public static MethodDescriptor of(final String descriptor) {
+        return new MethodDescriptorReader(descriptor).read();
     }
 
     /**

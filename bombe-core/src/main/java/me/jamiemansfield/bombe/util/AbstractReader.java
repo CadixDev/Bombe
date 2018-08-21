@@ -28,57 +28,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package me.jamiemansfield.bombe.type;
+package me.jamiemansfield.bombe.util;
 
-import me.jamiemansfield.bombe.analysis.InheritanceProvider;
+public abstract class AbstractReader {
 
-/**
- * Represents a type within Java.
- *
- * @see BaseType
- * @see ObjectType
- * @see ArrayType
- * @see VoidType
- *
- * @author Jamie Mansfield
- * @since 0.1.0
- */
-public interface Type {
+    protected final String source;
+    protected int current = 0;
 
-    /**
-     * Gets the appropriate {@link Type} for the given type.
-     *
-     * @param type The type
-     * @return The type
-     */
-    static Type of(final String type) {
-        return new TypeReader(type).readType();
+    public AbstractReader(final String source) {
+        this.source = source;
     }
 
-    /**
-     * Gets the appropriate {@link Type} for the given class.
-     *
-     * @param klass The class
-     * @return The type
-     */
-    static Type of(final Class<?> klass) {
-        if (klass.isPrimitive() && klass == Void.TYPE) {
-            return VoidType.INSTANCE;
-        }
-        return FieldType.of(klass);
+    protected boolean hasNext() {
+        return this.current < this.source.length();
     }
 
-    /**
-     * Checks whether this type is an instance of the given {@link Type}, using
-     * data provided by the given {@link InheritanceProvider}.
-     *
-     * @param that The type to check against
-     * @param inheritanceProvider The inheritance provider
-     * @return {@code true} if this type is an instance of the given type;
-     *         {@code false} otherwise
-     */
-    default boolean isInstanceOf(final Type that, final InheritanceProvider inheritanceProvider) {
-        return this.equals(that);
+    protected char peek() {
+        if (!this.hasNext()) throw new IllegalStateException("No character available to peek at!");
+        return this.source.charAt(this.current);
+    }
+
+    protected char previous() {
+        if (this.current <= 0) throw new IllegalStateException("No previous character available!");
+        return this.source.charAt(this.current - 1);
+    }
+
+    protected char advance() {
+        if (!this.hasNext()) throw new IllegalStateException("No character available to advance to!");
+        return this.source.charAt(this.current++);
     }
 
 }

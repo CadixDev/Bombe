@@ -30,55 +30,59 @@
 
 package me.jamiemansfield.bombe.type;
 
-import me.jamiemansfield.bombe.analysis.InheritanceProvider;
+import me.jamiemansfield.bombe.util.AbstractReader;
 
-/**
- * Represents a type within Java.
- *
- * @see BaseType
- * @see ObjectType
- * @see ArrayType
- * @see VoidType
- *
- * @author Jamie Mansfield
- * @since 0.1.0
- */
-public interface Type {
+public class TypeReader extends AbstractReader {
 
-    /**
-     * Gets the appropriate {@link Type} for the given type.
-     *
-     * @param type The type
-     * @return The type
-     */
-    static Type of(final String type) {
-        return new TypeReader(type).readType();
+    public TypeReader(final String source) {
+        super(source);
     }
 
-    /**
-     * Gets the appropriate {@link Type} for the given class.
-     *
-     * @param klass The class
-     * @return The type
-     */
-    static Type of(final Class<?> klass) {
-        if (klass.isPrimitive() && klass == Void.TYPE) {
+    public Type readType() {
+        // Void Type
+        if (this.peek() == 'V') {
+            this.advance();
             return VoidType.INSTANCE;
         }
-        return FieldType.of(klass);
+
+        // Field Type
+        return this.readFieldType();
     }
 
-    /**
-     * Checks whether this type is an instance of the given {@link Type}, using
-     * data provided by the given {@link InheritanceProvider}.
-     *
-     * @param that The type to check against
-     * @param inheritanceProvider The inheritance provider
-     * @return {@code true} if this type is an instance of the given type;
-     *         {@code false} otherwise
-     */
-    default boolean isInstanceOf(final Type that, final InheritanceProvider inheritanceProvider) {
-        return this.equals(that);
+    public FieldType readFieldType() {
+        // Array Type
+        if (this.peek() == '[') {
+            int count = 0;
+
+            while (this.hasNext() && this.peek() == '[') {
+                this.advance();
+                count++;
+            }
+
+            return new ArrayType(count, this.readFieldType());
+        }
+
+        // Base Type
+        if (BaseType.isValidBase(this.peek())) {
+            return BaseType.getFromKey(this.advance());
+        }
+
+        // Object Type
+        if (this.peek() == 'L') {
+            final int start = this.current;
+            this.advance();
+
+            while (this.hasNext() && this.peek() != ';') {
+                this.advance();
+            }
+
+            if (this.peek() != ';') throw new IllegalStateException("Incomplete descriptor provided!");
+            this.advance();
+
+            return new ObjectType(this.source.substring(start + 1, this.current - 1));
+        }
+
+        throw new IllegalStateException("Invalid descriptor provided!");
     }
 
 }

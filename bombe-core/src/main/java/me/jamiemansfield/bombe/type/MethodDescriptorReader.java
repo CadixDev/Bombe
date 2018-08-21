@@ -30,55 +30,29 @@
 
 package me.jamiemansfield.bombe.type;
 
-import me.jamiemansfield.bombe.analysis.InheritanceProvider;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Represents a type within Java.
- *
- * @see BaseType
- * @see ObjectType
- * @see ArrayType
- * @see VoidType
- *
- * @author Jamie Mansfield
- * @since 0.1.0
- */
-public interface Type {
+public class MethodDescriptorReader extends TypeReader {
 
-    /**
-     * Gets the appropriate {@link Type} for the given type.
-     *
-     * @param type The type
-     * @return The type
-     */
-    static Type of(final String type) {
-        return new TypeReader(type).readType();
+    public MethodDescriptorReader(final String descriptor) {
+        super(descriptor);
     }
 
-    /**
-     * Gets the appropriate {@link Type} for the given class.
-     *
-     * @param klass The class
-     * @return The type
-     */
-    static Type of(final Class<?> klass) {
-        if (klass.isPrimitive() && klass == Void.TYPE) {
-            return VoidType.INSTANCE;
+    public MethodDescriptor read() {
+        final List<FieldType> params = new ArrayList<>();
+
+        if (this.peek() != '(') throw new IllegalStateException("Invalid descriptor provided!");
+        this.advance();
+
+        while (this.hasNext() && this.peek() != ')') {
+            params.add(this.readFieldType());
         }
-        return FieldType.of(klass);
-    }
 
-    /**
-     * Checks whether this type is an instance of the given {@link Type}, using
-     * data provided by the given {@link InheritanceProvider}.
-     *
-     * @param that The type to check against
-     * @param inheritanceProvider The inheritance provider
-     * @return {@code true} if this type is an instance of the given type;
-     *         {@code false} otherwise
-     */
-    default boolean isInstanceOf(final Type that, final InheritanceProvider inheritanceProvider) {
-        return this.equals(that);
+        if (this.peek() != ')') throw new IllegalStateException("Invalid descriptor provided!");
+        this.advance();
+
+        return new MethodDescriptor(params, this.readType());
     }
 
 }

@@ -50,19 +50,7 @@ public interface FieldType extends Type {
      * @return The field type
      */
     static FieldType of(final String type) {
-        if (type.startsWith("L")) {
-            // Remove off the 'L' and the ';'.
-            return new ObjectType(type.substring(1, type.length() - 1));
-        }
-        else if (type.startsWith("[")) {
-            // Get the array dimensions count
-            final int arrayDims = type.lastIndexOf('[') + 1;
-            return new ArrayType(arrayDims, Type.of(type.substring(arrayDims)));
-        }
-        else if (type.length() == 1 && BaseType.isValidBase(type.charAt(0))) {
-            return BaseType.getFromKey(type.charAt(0));
-        }
-        throw new RuntimeException("Invalid field type: " + type);
+        return new TypeReader(type).readFieldType();
     }
 
     /**
