@@ -30,11 +30,11 @@
 
 package me.jamiemansfield.bombe.type.signature;
 
-import com.google.common.base.MoreObjects;
 import me.jamiemansfield.bombe.type.FieldType;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Represents a field within a class, by its name and descriptor.
@@ -87,9 +87,9 @@ public class FieldSignature extends MemberSignature {
     }
 
     @Override
-    protected MoreObjects.ToStringHelper buildToString() {
+    protected StringJoiner buildToString() {
         return super.buildToString()
-                .add("type", this.type);
+                .add("type=" + this.type);
     }
 
     @Override

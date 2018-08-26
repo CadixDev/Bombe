@@ -34,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.google.common.collect.ImmutableMap;
 import me.jamiemansfield.bombe.type.ArrayType;
 import me.jamiemansfield.bombe.type.BaseType;
 import me.jamiemansfield.bombe.type.FieldType;
@@ -43,6 +42,8 @@ import me.jamiemansfield.bombe.type.Type;
 import me.jamiemansfield.bombe.type.VoidType;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -50,16 +51,18 @@ import java.util.Map;
  */
 public final class TypeTest {
 
-    private static final Map<Class<?>, BaseType> BASE_MAPPINGS = ImmutableMap.<Class<?>, BaseType>builder()
-            .put(Boolean.TYPE, BaseType.BOOLEAN)
-            .put(Character.TYPE, BaseType.CHAR)
-            .put(Byte.TYPE, BaseType.BYTE)
-            .put(Short.TYPE, BaseType.SHORT)
-            .put(Integer.TYPE, BaseType.INT)
-            .put(Long.TYPE, BaseType.LONG)
-            .put(Float.TYPE, BaseType.FLOAT)
-            .put(Double.TYPE, BaseType.DOUBLE)
-            .build();
+    private static final Map<Class<?>, BaseType> BASE_MAPPINGS = Collections.unmodifiableMap(new HashMap<Class<?>, BaseType>() {
+        {
+            this.put(Boolean.TYPE, BaseType.BOOLEAN);
+            this.put(Character.TYPE, BaseType.CHAR);
+            this.put(Byte.TYPE, BaseType.BYTE);
+            this.put(Short.TYPE, BaseType.SHORT);
+            this.put(Integer.TYPE, BaseType.INT);
+            this.put(Long.TYPE, BaseType.LONG);
+            this.put(Float.TYPE, BaseType.FLOAT);
+            this.put(Double.TYPE, BaseType.DOUBLE);
+        }
+    });
 
     @Test
     public void arrayType() {
