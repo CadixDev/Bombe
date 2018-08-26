@@ -30,8 +30,7 @@
 
 package me.jamiemansfield.bombe.type;
 
-import com.google.common.collect.Lists;
-
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -66,7 +65,7 @@ public final class MethodDescriptor {
         final String rawReturn = descriptor.substring(descriptor.indexOf(')') + 1);
 
         // Param Types
-        final List<FieldType> paramTypes = Lists.newArrayList();
+        final List<FieldType> paramTypes = new ArrayList<>();
 
         boolean isParsingObject = false;
         StringBuilder objectBuilder = new StringBuilder();

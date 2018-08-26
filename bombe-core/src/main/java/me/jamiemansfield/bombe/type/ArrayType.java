@@ -30,8 +30,7 @@
 
 package me.jamiemansfield.bombe.type;
 
-import com.google.common.base.Strings;
-
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -58,7 +57,11 @@ public class ArrayType implements FieldType {
      */
     public ArrayType(final int arrayDims, final Type component) {
         this.dimCount = arrayDims;
-        this.arrayDims = Strings.repeat("[", arrayDims);
+
+        char[] dims = new char[arrayDims];
+        Arrays.fill(dims, '[');
+        this.arrayDims = new String(dims);
+
         this.component = component;
         this.descriptor = this.arrayDims + component.toString();
     }

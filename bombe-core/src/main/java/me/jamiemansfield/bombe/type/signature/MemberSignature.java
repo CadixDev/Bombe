@@ -30,7 +30,7 @@
 
 package me.jamiemansfield.bombe.type.signature;
 
-import com.google.common.base.MoreObjects;
+import java.util.StringJoiner;
 
 /**
  * All members within Java have a unique signature that they can be identified with,
@@ -64,13 +64,13 @@ public abstract class MemberSignature {
         return this.name;
     }
 
-    protected MoreObjects.ToStringHelper buildToString() {
-        return MoreObjects.toStringHelper(this)
-                .add("name", this.name);
+    protected StringJoiner buildToString() {
+        return new StringJoiner(", ", getClass().getSimpleName() + "{", "}")
+                .add("name=" + name);
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         return this.buildToString().toString();
     }
 

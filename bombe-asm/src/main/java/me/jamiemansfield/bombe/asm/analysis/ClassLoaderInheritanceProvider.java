@@ -32,7 +32,6 @@ package me.jamiemansfield.bombe.asm.analysis;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.google.common.io.ByteStreams;
 import me.jamiemansfield.bombe.analysis.InheritanceProvider;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
@@ -62,7 +61,7 @@ public class ClassLoaderInheritanceProvider implements InheritanceProvider {
                         // I read the class using ASM as getting the information required using
                         // reflection is awkward.
                         // Additionally, it allows me to share code - which is always a positive!
-                        final ClassReader reader = new ClassReader(ByteStreams.toByteArray(in));
+                        final ClassReader reader = new ClassReader(in);
                         final ClassNode node = new ClassNode();
                         reader.accept(node, 0);
 
