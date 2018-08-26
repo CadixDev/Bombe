@@ -134,4 +134,25 @@ public class TypeReader extends AbstractReader {
         return new ObjectType(this.source.substring(start + 1, this.current - 1));
     }
 
+    /**
+     * Reads the next {@link PrimitiveType} from source.
+     *
+     * @return The type
+     * @throws IllegalStateException If the descriptor is invalid
+     */
+    public PrimitiveType readPrimitiveType() {
+        // Void Type
+        if (this.peek() == 'V') {
+            this.advance();
+            return VoidType.INSTANCE;
+        }
+
+        // Base Type
+        if (BaseType.isValidBase(this.peek())) {
+            return this.readBaseType();
+        }
+
+        throw new IllegalStateException("Invalid descriptor provided!");
+    }
+
 }

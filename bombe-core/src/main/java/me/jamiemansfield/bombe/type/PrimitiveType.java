@@ -31,34 +31,36 @@
 package me.jamiemansfield.bombe.type;
 
 /**
- * Represents a void type within Java.
+ * Represents a primitive type within Java, either {@link BaseType} or {@link VoidType}.
  *
- * @see <a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-VoidDescriptor">VoidDescriptor</a>
- *
- * @author Jamie Mansfield
- * @since 0.1.0
+ * @author Minecrell
+ * @since 0.2.0
  */
-public class VoidType implements PrimitiveType {
+public interface PrimitiveType extends Type {
 
     /**
-     * The global instance of the void type.
+     * Gets the type key for this primitive type.
+     *
+     * @return The type key
      */
-    public static final VoidType INSTANCE = new VoidType();
+    char getKey();
 
-    private static final char KEY = 'V';
-    private static final String DESCRIPTOR = "V";
+    /**
+     * Gets the {@link PrimitiveType} for the given type key.
+     *
+     * @param key The type key
+     * @return The primitive type
+     * @throws IllegalStateException If the descriptor is invalid
+     */
+    static PrimitiveType getFromKey(char key) {
+        if (key == 'V') {
+            return VoidType.INSTANCE;
+        }
+        if (BaseType.isValidBase(key)) {
+            return BaseType.getFromKey(key);
+        }
 
-    private VoidType() {
-    }
-
-    @Override
-    public char getKey() {
-        return KEY;
-    }
-
-    @Override
-    public String toString() {
-        return DESCRIPTOR;
+        throw new IllegalStateException("Invalid primitive type: " + key);
     }
 
 }
