@@ -30,10 +30,10 @@
 
 package me.jamiemansfield.bombe.type.signature;
 
-import com.google.common.base.MoreObjects;
 import me.jamiemansfield.bombe.type.MethodDescriptor;
 
 import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * Represents a method within a class, by its name and descriptor.
@@ -76,11 +76,9 @@ public class MethodSignature extends MemberSignature {
     }
 
     @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("name", this.name)
-                .add("descriptor", this.descriptor)
-                .toString();
+    protected StringJoiner buildToString() {
+        return super.buildToString()
+                .add("descriptor=" + this.descriptor);
     }
 
     @Override
