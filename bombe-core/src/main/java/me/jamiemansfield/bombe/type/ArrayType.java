@@ -58,7 +58,7 @@ public class ArrayType implements FieldType {
     public ArrayType(final int arrayDims, final FieldType component) {
         this.dimCount = arrayDims;
 
-        char[] dims = new char[arrayDims];
+        final char[] dims = new char[arrayDims];
         Arrays.fill(dims, '[');
         this.arrayDims = new String(dims);
 
@@ -73,6 +73,16 @@ public class ArrayType implements FieldType {
      */
     public int getDimCount() {
         return this.dimCount;
+    }
+
+    /**
+     * Gets the raw dimension descriptor of the array.
+     *
+     * @return The dimensions
+     * @since 0.2.0
+     */
+    public String getDims() {
+        return this.arrayDims;
     }
 
     /**
@@ -94,13 +104,13 @@ public class ArrayType implements FieldType {
         if (this == obj) return true;
         if (!(obj instanceof ArrayType)) return false;
         final ArrayType that = (ArrayType) obj;
-        return Objects.equals(this.arrayDims, that.arrayDims) &&
+        return Objects.equals(this.dimCount, that.dimCount) &&
                 Objects.equals(this.component, that.component);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.arrayDims, this.component);
+        return Objects.hash(this.dimCount, this.component);
     }
 
 }

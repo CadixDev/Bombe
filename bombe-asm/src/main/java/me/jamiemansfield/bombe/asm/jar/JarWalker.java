@@ -30,7 +30,6 @@
 
 package me.jamiemansfield.bombe.asm.jar;
 
-import com.google.common.io.ByteStreams;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
@@ -94,7 +93,7 @@ public class JarWalker implements Walker {
                 // Now to read the class
                 .forEach(entry -> {
                     try (final InputStream in = jarFile.getInputStream(entry)) {
-                        final ClassReader reader = new ClassReader(ByteStreams.toByteArray(in));
+                        final ClassReader reader = new ClassReader(in);
                         final ClassNode node = new ClassNode();
                         reader.accept(node, 0);
                         sourceSet.add(node);
