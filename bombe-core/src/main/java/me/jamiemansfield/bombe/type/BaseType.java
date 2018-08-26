@@ -40,7 +40,7 @@ import java.util.Arrays;
  * @author Jamie Mansfield
  * @since 0.1.0
  */
-public enum BaseType implements FieldType {
+public enum BaseType implements PrimitiveType, FieldType {
 
     BYTE('B'),
     CHAR('C'),
@@ -62,7 +62,12 @@ public enum BaseType implements FieldType {
      */
     BaseType(final char key) {
         this.key = key;
-        this.descriptor = "" + key;
+        this.descriptor = String.valueOf(key);
+    }
+
+    @Override
+    public char getKey() {
+        return this.key;
     }
 
     @Override
