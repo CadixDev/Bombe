@@ -45,7 +45,7 @@ public class ArrayType implements FieldType {
 
     private final int dimCount;
     private final String arrayDims;
-    private final Type component;
+    private final FieldType component;
     private final String descriptor;
 
     /**
@@ -55,7 +55,7 @@ public class ArrayType implements FieldType {
      * @param arrayDims The array dimensions count
      * @param component The component type
      */
-    public ArrayType(final int arrayDims, final Type component) {
+    public ArrayType(final int arrayDims, final FieldType component) {
         this.dimCount = arrayDims;
 
         char[] dims = new char[arrayDims];
@@ -76,11 +76,11 @@ public class ArrayType implements FieldType {
     }
 
     /**
-     * Gets the {@link Type} of the array.
+     * Gets the {@link FieldType} of the array.
      *
      * @return The array's type
      */
-    public Type getComponent() {
+    public FieldType getComponent() {
         return this.component;
     }
 
