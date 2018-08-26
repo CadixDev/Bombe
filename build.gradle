@@ -1,9 +1,6 @@
 subprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
-    if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
-        apply plugin: 'signing'
-    }
 
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
@@ -50,7 +47,9 @@ subprojects {
     }
 
     if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
+        apply plugin: 'signing'
         signing {
+            required { !version.endsWith('-SNAPSHOT') && gradle.taskGraph.hasTask(tasks.uploadArchives) }
             sign configurations.archives
         }
     }
