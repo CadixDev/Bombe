@@ -51,10 +51,10 @@ class ClassNodeClassInfo extends InheritanceProvider.ClassInfo.Impl {
         );
         this.interfaces.addAll(klass.interfaces);
         klass.fields.stream()
-                .map(fieldNode -> new FieldSignature(fieldNode.name, fieldNode.desc))
+                .map(fieldNode -> FieldSignature.of(fieldNode.name, fieldNode.desc))
                 .forEach(this.fields::add);
         klass.methods.stream()
-                .map(methodNode -> new MethodSignature(methodNode.name, methodNode.desc))
+                .map(methodNode -> MethodSignature.of(methodNode.name, methodNode.desc))
                 .forEach(this.methods::add);
     }
 

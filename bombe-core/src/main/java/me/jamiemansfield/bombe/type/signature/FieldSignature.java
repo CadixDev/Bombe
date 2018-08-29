@@ -47,6 +47,18 @@ public class FieldSignature extends MemberSignature {
     private final FieldType type;
 
     /**
+     * Creates a new field signature with the given name and
+     * decoded type descriptor.
+     *
+     * @param name The name of the field
+     * @param type The raw type of the field
+     * @return The new field signature
+     */
+    public static FieldSignature of(String name, String type) {
+        return new FieldSignature(name, FieldType.of(type));
+    }
+
+    /**
      * Creates a field signature, with the given name and type.
      *
      * @param name The name of the field
@@ -58,23 +70,13 @@ public class FieldSignature extends MemberSignature {
     }
 
     /**
-     * Creates a field signature, with the given name and type.
-     *
-     * @param name The name of the field
-     * @param type The type of the field
-     */
-    public FieldSignature(final String name, final String type) {
-        this(name, FieldType.of(type));
-    }
-
-    /**
      * Creates a field signature, with the given name.
      *
      * @param name The name of the field
      * @since 0.1.1
      */
     public FieldSignature(final String name) {
-        this(name, (FieldType) null);
+        this(name, null);
     }
 
     /**

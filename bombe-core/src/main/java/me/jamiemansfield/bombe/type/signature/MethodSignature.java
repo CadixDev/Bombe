@@ -46,6 +46,29 @@ public class MethodSignature extends MemberSignature {
     private final MethodDescriptor descriptor;
 
     /**
+     * Creates a method signature, with the given method name and raw descriptor.
+     *
+     * @param name The method name
+     * @param descriptor The method's raw descriptor
+     * @return The new method signature
+     */
+    public static MethodSignature of(final String name, final String descriptor) {
+        return new MethodSignature(name, MethodDescriptor.of(descriptor));
+    }
+
+    /**
+     * Creates a method signature, with the given raw string that contains the
+     * method name and descriptor concatenated.
+     *
+     * @param nameAndDescriptor The method name and descriptor
+     * @return The new method signature
+     */
+    public static MethodSignature of(final String nameAndDescriptor) {
+        int methodIndex = nameAndDescriptor.indexOf('(');
+        return of(nameAndDescriptor.substring(0, methodIndex), nameAndDescriptor.substring(methodIndex));
+    }
+
+    /**
      * Creates a method signature, with the given name and {@link MethodDescriptor}.
      *
      * @param name The method name
@@ -54,16 +77,6 @@ public class MethodSignature extends MemberSignature {
     public MethodSignature(final String name, final MethodDescriptor descriptor) {
         super(name);
         this.descriptor = descriptor;
-    }
-
-    /**
-     * Creates a method descriptor, with the given method name and raw descriptor.
-     *
-     * @param name The method name
-     * @param descriptor The method's raw descriptor
-     */
-    public MethodSignature(final String name, final String descriptor) {
-        this(name, MethodDescriptor.of(descriptor));
     }
 
     /**
