@@ -69,15 +69,15 @@ public interface Type {
     }
 
     /**
-     * Checks whether this type is an instance of the given {@link Type}, using
+     * Checks whether this type is assignable from the given {@link Type}, using
      * data provided by the given {@link InheritanceProvider}.
      *
      * @param that The type to check against
      * @param inheritanceProvider The inheritance provider
-     * @return {@code true} if this type is an instance of the given type;
+     * @return {@code true} if this type is assignable from the given type;
      *         {@code false} otherwise
      */
-    default boolean isInstanceOf(final Type that, final InheritanceProvider inheritanceProvider) {
+    default boolean isAssignableFrom(final Type that, final InheritanceProvider inheritanceProvider) {
         return this.equals(that);
     }
 

@@ -67,7 +67,7 @@ public class ObjectType implements FieldType {
     }
 
     @Override
-    public boolean isInstanceOf(final Type obj, final InheritanceProvider inheritanceProvider) {
+    public boolean isAssignableFrom(final Type obj, final InheritanceProvider inheritanceProvider) {
         if (this == obj) return true;
         if (!(obj instanceof ObjectType)) return false;
         final ObjectType that = (ObjectType) obj;
