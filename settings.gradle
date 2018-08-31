@@ -1,5 +1,5 @@
 rootProject.name = name
 
-include 'bombe-core'
+include 'bombe'
 include 'bombe-asm'
 

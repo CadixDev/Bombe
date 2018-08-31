@@ -1,5 +1,5 @@
 dependencies {
-    compile project(':bombe-core')
+    compile project(':bombe')
     compile 'org.ow2.asm:asm-commons:6.2'
     compile 'com.github.ben-manes.caffeine:caffeine:2.6.2'
 }
