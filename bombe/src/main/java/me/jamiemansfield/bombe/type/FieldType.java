@@ -63,33 +63,32 @@ public interface FieldType extends Type {
         if (klass.isPrimitive()) {
             if (klass == Boolean.TYPE) {
                 return BaseType.BOOLEAN;
-            }
-            else if (klass == Character.TYPE) {
+            } else if (klass == Character.TYPE) {
                 return BaseType.CHAR;
-            }
-            else if (klass == Byte.TYPE) {
+            } else if (klass == Byte.TYPE) {
                 return BaseType.BYTE;
-            }
-            else if (klass == Short.TYPE) {
+            } else if (klass == Short.TYPE) {
                 return BaseType.SHORT;
-            }
-            else if (klass == Integer.TYPE) {
+            } else if (klass == Integer.TYPE) {
                 return BaseType.INT;
-            }
-            else if (klass == Long.TYPE) {
+            } else if (klass == Long.TYPE) {
                 return BaseType.LONG;
-            }
-            else if (klass == Float.TYPE) {
+            } else if (klass == Float.TYPE) {
                 return BaseType.FLOAT;
-            }
-            else if (klass == Double.TYPE) {
+            } else if (klass == Double.TYPE) {
                 return BaseType.DOUBLE;
-            }
-            else {
+            } else {
                 throw new RuntimeException("Invalid base type: " + klass.getName());
             }
-        }
-        else {
+        } else if (klass.isArray()) {
+            int dimensions = 0;
+            Class<?> componentType = klass;
+            do {
+                componentType = componentType.getComponentType();
+                dimensions++;
+            } while (componentType.isArray());
+            return new ArrayType(dimensions, of(componentType));
+        } else {
             return new ObjectType(klass.getName());
         }
     }

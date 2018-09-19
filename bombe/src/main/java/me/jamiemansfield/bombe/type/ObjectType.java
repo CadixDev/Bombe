@@ -33,6 +33,7 @@ package me.jamiemansfield.bombe.type;
 import me.jamiemansfield.bombe.analysis.InheritanceProvider;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Represents an object type within Java.
@@ -71,9 +72,11 @@ public class ObjectType implements FieldType {
         if (this == obj) return true;
         if (!(obj instanceof ObjectType)) return false;
         final ObjectType that = (ObjectType) obj;
-        return this.equals(that) ||
-                that.getClassName().equals("java/lang/Object") ||
-                inheritanceProvider.getParentsOf(this.className).contains(that.getClassName());
+        if (this.equals(that) || this.className.equals("java/lang/Object")) return true;
+
+        // Check inheritance
+        Optional<InheritanceProvider.ClassInfo> info = inheritanceProvider.provide(that.getClassName());
+        return info.isPresent() && info.get().hasParent(this.className, inheritanceProvider);
     }
 
     @Override
