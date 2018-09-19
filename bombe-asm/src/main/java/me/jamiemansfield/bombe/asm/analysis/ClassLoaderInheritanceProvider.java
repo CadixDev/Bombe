@@ -30,11 +30,8 @@
 
 package me.jamiemansfield.bombe.asm.analysis;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import me.jamiemansfield.bombe.analysis.InheritanceProvider;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.tree.ClassNode;
 
 import java.io.InputStream;
 import java.util.Optional;
@@ -48,31 +45,30 @@ import java.util.Optional;
  */
 public class ClassLoaderInheritanceProvider implements InheritanceProvider {
 
-    private final LoadingCache<String, ClassInfo> cache;
+    private final ClassLoader classLoader;
 
     public ClassLoaderInheritanceProvider(final ClassLoader classLoader) {
-        this.cache = Caffeine.newBuilder()
-                .build(key -> {
-                    final String internalName = key + ".class";
-
-                    try (final InputStream in = classLoader.getResourceAsStream(internalName)) {
-                        if (in == null) return null;
-
-                        // I read the class using ASM as getting the information required using
-                        // reflection is awkward.
-                        // Additionally, it allows me to share code - which is always a positive!
-                        final ClassReader reader = new ClassReader(in);
-                        final ClassNode node = new ClassNode();
-                        reader.accept(node, 0);
-
-                        return new ClassNodeClassInfo(node);
-                    }
-                });
+        this.classLoader = classLoader;
     }
 
     @Override
     public Optional<ClassInfo> provide(final String klass) {
-        return Optional.ofNullable(this.cache.get(klass));
+        final String internalName = klass + ".class";
+
+        try (final InputStream in = classLoader.getResourceAsStream(internalName)) {
+            if (in == null) return Optional.empty();
+
+            // I read the class using ASM as getting the information required using
+            // reflection is awkward.
+            // Additionally, it allows me to share code - which is always a positive!
+            final ClassReader reader = new ClassReader(in);
+
+            final InheritanceClassInfoVisitor visitor = new InheritanceClassInfoVisitor();
+            reader.accept(visitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+            return Optional.of(visitor.create());
+        } catch (Exception ignored) {
+            return Optional.empty(); // TODO?
+        }
     }
 
 }

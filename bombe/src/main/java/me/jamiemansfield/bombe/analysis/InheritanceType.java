@@ -30,57 +30,56 @@
 
 package me.jamiemansfield.bombe.analysis;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.lang.reflect.Modifier;
 
 /**
- * A cascading {@link InheritanceProvider} allows for class information to be
- * pooled from multiple sources.
+ * Represents the (access) type of inheritance used by a specific member.
+ * It is used to check if an inherited class could access a specific member
+ * from a parent class.
  *
- * @author Jamie Mansfield
- * @since 0.1.0
+ * @author Minecrell
+ * @since 0.3.0
  */
-public class CascadingInheritanceProvider implements InheritanceProvider {
+public enum InheritanceType {
 
-    private final ArrayList<InheritanceProvider> providers;
+    NONE,
+    PACKAGE_PRIVATE,
+    PROTECTED,
+    PUBLIC;
 
-    public CascadingInheritanceProvider(final List<InheritanceProvider> providers) {
-        this.providers = new ArrayList<>(providers);
-    }
-
-    public CascadingInheritanceProvider() {
-        this.providers = new ArrayList<>();
+    /**
+     * Returns whether the given child class could access a specific member
+     * from the given parent class.
+     *
+     * @param parent The parent class
+     * @param child The child class
+     * @return {@code true} if the child class could access the member
+     */
+    public boolean canInherit(final InheritanceProvider.ClassInfo parent, final InheritanceProvider.ClassInfo child) {
+        return this != NONE && (this != PACKAGE_PRIVATE || parent.getPackage().equals(child.getPackage()));
     }
 
     /**
-     * Adds an {@link InheritanceProvider} that can be used for obtaining class
-     * information.
+     * Returns the appropriate {@link InheritanceType} for the given modifiers
+     * of a member.
      *
-     * @param provider The inheritance provider
-     * @return {@code this}, for chaining
+     * @param modifiers The modifiers of the member
+     * @return The inheritance type
+     * @see Modifier
      */
-    public CascadingInheritanceProvider install(final InheritanceProvider provider) {
-        this.providers.add(provider);
-        return this;
-    }
-
-    @Override
-    public Optional<ClassInfo> provide(final String klass) {
-        for (final InheritanceProvider provider : this.providers) {
-            final Optional<ClassInfo> info = provider.provide(klass);
-            if (info.isPresent()) return info;
+    public static InheritanceType fromModifiers(final int modifiers) {
+        if ((modifiers & Modifier.PUBLIC) != 0) {
+            return PUBLIC;
         }
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<ClassInfo> provide(String klass, Object context) {
-        for (final InheritanceProvider provider : this.providers) {
-            final Optional<ClassInfo> info = provider.provide(klass, context);
-            if (info.isPresent()) return info;
+        else if ((modifiers & Modifier.PROTECTED) != 0) {
+            return PROTECTED;
         }
-        return Optional.empty();
+        else if ((modifiers & Modifier.PRIVATE) == 0) {
+            return PACKAGE_PRIVATE;
+        }
+        else {
+            return NONE;
+        }
     }
 
 }

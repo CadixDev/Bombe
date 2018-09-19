@@ -32,6 +32,7 @@ package me.jamiemansfield.bombe.type.signature;
 
 import me.jamiemansfield.bombe.type.FieldType;
 
+import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -56,6 +57,10 @@ public class FieldSignature extends MemberSignature {
      */
     public static FieldSignature of(String name, String type) {
         return new FieldSignature(name, FieldType.of(type));
+    }
+
+    public static FieldSignature of(Field field) {
+        return new FieldSignature(field.getName(), FieldType.of(field.getType()));
     }
 
     /**

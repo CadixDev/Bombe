@@ -30,9 +30,12 @@
 
 package me.jamiemansfield.bombe.type;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * A model of a method descriptor, a text representation of a method's
@@ -60,6 +63,13 @@ public final class MethodDescriptor {
      */
     public static MethodDescriptor of(final String descriptor) {
         return new MethodDescriptorReader(descriptor).read();
+    }
+
+    public static MethodDescriptor of(final Method method) {
+        return new MethodDescriptor(
+                Arrays.stream(method.getParameterTypes()).map(FieldType::of).collect(Collectors.toList()),
+                Type.of(method.getReturnType())
+        );
     }
 
     /**

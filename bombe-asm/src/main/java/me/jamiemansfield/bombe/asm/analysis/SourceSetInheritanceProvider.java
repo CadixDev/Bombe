@@ -30,12 +30,16 @@
 
 package me.jamiemansfield.bombe.asm.analysis;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import me.jamiemansfield.bombe.analysis.InheritanceProvider;
+import me.jamiemansfield.bombe.analysis.InheritanceType;
 import me.jamiemansfield.bombe.asm.jar.SourceSet;
+import me.jamiemansfield.bombe.type.signature.FieldSignature;
+import me.jamiemansfield.bombe.type.signature.MethodSignature;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.ClassNode;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * An {@link InheritanceProvider} that obtains all of its information
@@ -46,23 +50,25 @@ import java.util.Optional;
  */
 public class SourceSetInheritanceProvider implements InheritanceProvider {
 
-    private final LoadingCache<String, ClassInfo> cache;
+    private final SourceSet sources;
 
     public SourceSetInheritanceProvider(final SourceSet sources) {
-        this.cache = Caffeine.newBuilder()
-                .build(key -> {
-                    if (sources.has(key)) {
-                        return new ClassNodeClassInfo(sources.get(key));
-                    }
-                    else {
-                        return null;
-                    }
-                });
+        this.sources = sources;
     }
 
     @Override
     public Optional<ClassInfo> provide(final String klass) {
-        return Optional.ofNullable(this.cache.get(klass));
+        if (this.sources.has(klass)) {
+            final ClassNode node = this.sources.get(klass);
+            return Optional.of(new ClassInfo.Impl(node.name, (node.access & Opcodes.ACC_INTERFACE) != 0, node.superName, node.interfaces,
+                    node.fields.stream()
+                            .collect(Collectors.toMap(f -> FieldSignature.of(f.name, f.desc), f -> InheritanceType.fromModifiers(f.access))),
+                    node.methods.stream()
+                            .collect(Collectors.toMap(m -> MethodSignature.of(m.name, m.desc), m -> InheritanceType.fromModifiers(m.access)))
+            ));
+        } else {
+            return Optional.empty();
+        }
     }
 
 }
