@@ -228,7 +228,7 @@ public interface InheritanceProvider {
          *
          * @param child The child class to check
          * @param field The field to check
-         * @return If the child class could inherit the field
+         * @return {@code true} if the child class could inherit the method
          * @since 0.3.0
          */
         default boolean canInherit(final ClassInfo child, final FieldSignature field) {
@@ -246,11 +246,32 @@ public interface InheritanceProvider {
          *
          * @param child The child class to check
          * @param method The method to check
-         * @return If the child class could inherit the method
+         * @return {@code true} if the child class could inherit the method
          * @since 0.3.0
          */
         default boolean canInherit(final ClassInfo child, final MethodSignature method) {
             return this.getMethods().getOrDefault(method, InheritanceType.NONE).canInherit(this, child);
+        }
+
+        /**
+         * Returns whether this class overrides the specified method in the
+         * given parent class.
+         *
+         * <p>Note: This method does not check if the given class actually
+         * extends this class or interface.
+         * Use {@link #hasParent(ClassInfo, InheritanceProvider)} to check this
+         * additionally if necessary.</p>
+         *
+         * @param method The method to check
+         * @param parent The parent class to check
+         * @return {@code true} if this class overrides the method
+         */
+        default boolean overrides(MethodSignature method, ClassInfo parent) {
+            InheritanceType own = getMethods().getOrDefault(method, InheritanceType.NONE);
+            if (own == InheritanceType.NONE) return false;
+
+            InheritanceType parentType = parent.getMethods().getOrDefault(method, InheritanceType.NONE);
+            return own.compareTo(parentType) >= 0 && parentType.canInherit(parent, this);
         }
 
         /**
