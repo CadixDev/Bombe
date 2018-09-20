@@ -55,11 +55,18 @@ public class FieldSignature extends MemberSignature {
      * @param type The raw type of the field
      * @return The new field signature
      */
-    public static FieldSignature of(String name, String type) {
+    public static FieldSignature of(final String name, final String type) {
         return new FieldSignature(name, FieldType.of(type));
     }
 
-    public static FieldSignature of(Field field) {
+    /**
+     * Creates a {@link FieldSignature} from the given field.
+     *
+     * @param field The field
+     * @return The signature
+     * @since 0.3.0
+     */
+    public static FieldSignature of(final Field field) {
         return new FieldSignature(field.getName(), FieldType.of(field.getType()));
     }
 

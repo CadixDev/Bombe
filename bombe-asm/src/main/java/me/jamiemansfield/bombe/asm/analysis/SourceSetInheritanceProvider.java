@@ -66,7 +66,8 @@ public class SourceSetInheritanceProvider implements InheritanceProvider {
                     node.methods.stream()
                             .collect(Collectors.toMap(m -> MethodSignature.of(m.name, m.desc), m -> InheritanceType.fromModifiers(m.access)))
             ));
-        } else {
+        }
+        else {
             return Optional.empty();
         }
     }

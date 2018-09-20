@@ -50,7 +50,7 @@ final class LazyInheritanceClassInfo extends InheritanceProvider.ClassInfo.Abstr
     private Map<MethodSignature, InheritanceType> methods;
     private Set<InheritanceProvider.ClassInfo> parents;
 
-    LazyInheritanceClassInfo(InheritanceProvider.ClassInfo provider) {
+    LazyInheritanceClassInfo(final InheritanceProvider.ClassInfo provider) {
         this.provider = provider;
         this.name = provider.getName();
     }
@@ -107,7 +107,7 @@ final class LazyInheritanceClassInfo extends InheritanceProvider.ClassInfo.Abstr
 
     @Override
     public void provideParents(final InheritanceProvider provider, final Collection<InheritanceProvider.ClassInfo> parents) {
-        parents.addAll(provideParents(provider));
+        parents.addAll(this.provideParents(provider));
     }
 
     @Override

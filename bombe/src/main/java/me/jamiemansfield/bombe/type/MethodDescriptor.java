@@ -65,6 +65,13 @@ public final class MethodDescriptor {
         return new MethodDescriptorReader(descriptor).read();
     }
 
+    /**
+     * Creates a {@link MethodDescriptor} for the given method.
+     *
+     * @param method The method
+     * @return The descriptor
+     * @since 0.3.0
+     */
     public static MethodDescriptor of(final Method method) {
         return new MethodDescriptor(
                 Arrays.stream(method.getParameterTypes()).map(FieldType::of).collect(Collectors.toList()),

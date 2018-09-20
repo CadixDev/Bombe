@@ -69,6 +69,13 @@ public class MethodSignature extends MemberSignature {
         return of(nameAndDescriptor.substring(0, methodIndex), nameAndDescriptor.substring(methodIndex));
     }
 
+    /**
+     * Creates a {@link MethodSignature} for the given method.
+     *
+     * @param method The method
+     * @return The signature
+     * @since 0.3.0
+     */
     public static MethodSignature of(final Method method) {
         return new MethodSignature(method.getName(), MethodDescriptor.of(method));
     }

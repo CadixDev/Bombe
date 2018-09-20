@@ -66,7 +66,8 @@ public class ClassLoaderInheritanceProvider implements InheritanceProvider {
             final InheritanceClassInfoVisitor visitor = new InheritanceClassInfoVisitor();
             reader.accept(visitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
             return Optional.of(visitor.create());
-        } catch (Exception ignored) {
+        }
+        catch (final Exception ex) {
             return Optional.empty(); // TODO?
         }
     }

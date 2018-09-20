@@ -61,7 +61,7 @@ public class ReflectionInheritanceProvider implements InheritanceProvider {
         try {
             return Optional.of(this.provide(Class.forName(klass.replace('/', '.'), false, this.classLoader)));
         }
-        catch (ClassNotFoundException ex) {
+        catch (final ClassNotFoundException ex) {
             return Optional.empty();
         }
     }

@@ -265,12 +265,13 @@ public interface InheritanceProvider {
          * @param method The method to check
          * @param parent The parent class to check
          * @return {@code true} if this class overrides the method
+         * @since 0.3.0
          */
         default boolean overrides(MethodSignature method, ClassInfo parent) {
-            InheritanceType own = getMethods().getOrDefault(method, InheritanceType.NONE);
+            final InheritanceType own = getMethods().getOrDefault(method, InheritanceType.NONE);
             if (own == InheritanceType.NONE) return false;
 
-            InheritanceType parentType = parent.getMethods().getOrDefault(method, InheritanceType.NONE);
+            final InheritanceType parentType = parent.getMethods().getOrDefault(method, InheritanceType.NONE);
             return own.compareTo(parentType) >= 0 && parentType.canInherit(parent, this);
         }
 
