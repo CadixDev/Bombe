@@ -62,7 +62,7 @@ public interface Type {
      * @return The type
      */
     static Type of(final Class<?> klass) {
-        if (klass.isPrimitive() && klass == Void.TYPE) {
+        if (klass == Void.TYPE) {
             return VoidType.INSTANCE;
         }
         return FieldType.of(klass);

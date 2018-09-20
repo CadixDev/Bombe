@@ -33,11 +33,14 @@ package me.jamiemansfield.bombe.analysis;
 import me.jamiemansfield.bombe.type.signature.FieldSignature;
 import me.jamiemansfield.bombe.type.signature.MethodSignature;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * An inheritance provider stores inheritance information on classes, which
@@ -57,22 +60,20 @@ public interface InheritanceProvider {
      */
     Optional<ClassInfo> provide(final String klass);
 
-    default List<String> getParentsOf(final String klass) {
-        return this.getParentsOf(klass, new ArrayList<>());
-    }
-
-    default List<String> getParentsOf(final String klass, final List<String> parents) {
-        final Consumer<String> addParent = parent -> {
-            if (!parents.contains(parent)) {
-                parents.add(parent);
-                parents.addAll(this.getParentsOf(parent, parents));
-            }
-        };
-        this.provide(klass).ifPresent(info -> {
-            if (info.getSuperName() != null) addParent.accept(info.getSuperName());
-            info.getInterfaces().forEach(addParent);
-        });
-        return parents;
+    /**
+     * Gets the class information for the given class name and optional context, if available.
+     *
+     * <p>The provided context may be used by the {@link InheritanceProvider} to avoid
+     * looking up the class by its name. The accepted values are specific to each
+     * {@link InheritanceProvider}; unknown context should be ignored.</p>
+     *
+     * @param klass The class name
+     * @param context Additional context related to the class name
+     * @return The class information wrapped in an {@link Optional}
+     * @since 0.3.0
+     */
+    default Optional<ClassInfo> provide(final String klass, Object context) {
+        return provide(klass);
     }
 
     /**
@@ -88,52 +89,274 @@ public interface InheritanceProvider {
         String getName();
 
         /**
+         * Gets the package name of the class.
+         *
+         * @return The package name
+         * @since 0.3.0
+         */
+        default String getPackage() {
+            final String name = this.getName();
+            final int classIndex = name.lastIndexOf('/');
+            return classIndex >= 0 ? name.substring(0, classIndex) : "";
+        }
+
+        /**
+         * Gets whether the represented class is an interface.
+         *
+         * @return {@code true} if the class is an interface
+         * @since 0.3.0
+         */
+        boolean isInterface();
+
+        /**
          * Gets the name of this class' super class.
+         *
+         * <p>Returns an empty string for interfaces or {@link Object}.</p>
          *
          * @return The super name
          */
         String getSuperName();
 
         /**
-         * Gets an immutable-view of all the interfaces of the class.
+         * Gets an unmodifiable view of all the <i>direct</i> interfaces of the class.
          *
          * @return The class' interfaces
          */
         List<String> getInterfaces();
 
         /**
-         * Gets an immutable-view of all the fields of the class.
+         * Gets an unmodifiable view of all fields declared in the class.
+         * It does not include fields inherited from parent classes.
          *
-         * @return The class' fields
+         * @return The declared fields
          */
-        List<FieldSignature> getFields();
+        Map<FieldSignature, InheritanceType> getFields();
 
         /**
-         * Gets an immutable-view of all the methods.
+         * Gets an unmodifiable view of all methods declared in the class.
+         * It does not include methods inherited from parent classes.
          *
-         * @return The methods
+         * @return The declared methods
          */
-        List<MethodSignature> getMethods();
+        Map<MethodSignature, InheritanceType> getMethods();
 
         /**
-         * A default implementation of {@link ClassInfo}.
+         * Gets an unmodifiable view of all parents of this class, recursively.
+         *
+         * <p>If a class in the inheritance chain cannot be provided by the
+         * given {@link InheritanceProvider} it will be missing in the result,
+         * along with all its parent classes.</p>
+         *
+         * @param provider The provider to use for looking up parent classes
+         * @return A set with all parents of the class (recursively)
+         * @since 0.3.0
          */
-        abstract class Impl implements ClassInfo {
+        default Set<ClassInfo> provideParents(InheritanceProvider provider) {
+            Set<ClassInfo> result = new HashSet<>();
+            provideParents(provider, result);
+            return Collections.unmodifiableSet(result);
+        }
+
+        /**
+         * Populates the given collection with all parents of this class, recursively.
+         *
+         * <p>If a class in the inheritance chain cannot be provided by the
+         * given {@link InheritanceProvider} it will be missing in the result,
+         * along with all its parent classes.</p>
+         *
+         * @param provider The provider to use for looking up parent classes
+         * @param parents The collection to populate
+         * @since 0.3.0
+         */
+        default void provideParents(InheritanceProvider provider, Collection<ClassInfo> parents) {
+            provider.provide(getSuperName()).ifPresent(p -> {
+                parents.add(p);
+                p.provideParents(provider, parents);
+            });
+            for (String iface : getInterfaces()) {
+                provider.provide(iface).ifPresent(p -> {
+                    parents.add(p);
+                    p.provideParents(provider, parents);
+                });
+            }
+        }
+
+        /**
+         * Returns whether this class has another class as a parent.
+         *
+         * <p>This method may return unexpected results if a class in
+         * the inheritance chain cannot be provided by the given
+         * {@link InheritanceProvider}.</p>
+         *
+         * @param klass The class to search in the parents of this class
+         * @param provider The provider to use for looking up parent classes
+         * @return {@code true} if this class inherits from the specified class
+         */
+        default boolean hasParent(String klass, InheritanceProvider provider) {
+            return provideParents(provider).stream().map(ClassInfo::getName).anyMatch(Predicate.isEqual(klass));
+        }
+
+        /**
+         * Returns whether this class has another class as a parent.
+         *
+         * <p>This method may return unexpected results if a class in
+         * the inheritance chain cannot be provided by the given
+         * {@link InheritanceProvider}.</p>
+         *
+         * @param info The class to search in the parents of this class
+         * @param provider The provider to use for looking up parent classes
+         * @return {@code true} if this class inherits from the specified class
+         */
+        default boolean hasParent(ClassInfo info, InheritanceProvider provider) {
+            return provideParents(provider).contains(info);
+        }
+
+        /**
+         * Returns whether the given child class could inherit the given field
+         * from this parent class.
+         *
+         * <p>Note: This method does not check if the given class actually
+         * extends this class or interface.
+         * Use {@link #hasParent(ClassInfo, InheritanceProvider)} to check this
+         * additionally if necessary.</p>
+         *
+         * @param child The child class to check
+         * @param field The field to check
+         * @return {@code true} if the child class could inherit the method
+         * @since 0.3.0
+         */
+        default boolean canInherit(ClassInfo child, FieldSignature field) {
+            return getFields().getOrDefault(field, InheritanceType.NONE).canInherit(this, child);
+        }
+
+        /**
+         * Returns whether the given child class could inherit the given method
+         * from this parent class.
+         *
+         * <p>Note: This method does not check if the given class actually
+         * extends this class or interface.
+         * Use {@link #hasParent(ClassInfo, InheritanceProvider)} to check this
+         * additionally if necessary.</p>
+         *
+         * @param child The child class to check
+         * @param method The method to check
+         * @return {@code true} if the child class could inherit the method
+         * @since 0.3.0
+         */
+        default boolean canInherit(ClassInfo child, MethodSignature method) {
+            return getMethods().getOrDefault(method, InheritanceType.NONE).canInherit(this, child);
+        }
+
+        /**
+         * Returns whether this class overrides the specified method in the
+         * given parent class.
+         *
+         * <p>Note: This method does not check if the given class actually
+         * extends this class or interface.
+         * Use {@link #hasParent(ClassInfo, InheritanceProvider)} to check this
+         * additionally if necessary.</p>
+         *
+         * @param method The method to check
+         * @param parent The parent class to check
+         * @return {@code true} if this class overrides the method
+         */
+        default boolean overrides(MethodSignature method, ClassInfo parent) {
+            InheritanceType own = getMethods().getOrDefault(method, InheritanceType.NONE);
+            if (own == InheritanceType.NONE) return false;
+
+            InheritanceType parentType = parent.getMethods().getOrDefault(method, InheritanceType.NONE);
+            return own.compareTo(parentType) >= 0 && parentType.canInherit(parent, this);
+        }
+
+        /**
+         * Returns a new {@link ClassInfo} that caches the information
+         * returned by the getters in this interface.
+         *
+         * <p>This method is intended for usage by {@link InheritanceProvider}s
+         * to simplify their implementation. All {@link ClassInfo} provided
+         * by an {@link InheritanceProvider} <i>should</i> be lazy initialized
+         * or otherwise cached.</p>
+         *
+         * @return A lazy class info
+         */
+        default ClassInfo lazy() {
+            return new LazyInheritanceClassInfo(this);
+        }
+
+        /**
+         * Abstract base implementation for {@link ClassInfo} that provides
+         * a standard implementation of {@link #equals(Object)},
+         * {@link #hashCode()} and {@link #toString()}.
+         *
+         * <p>All {@link ClassInfo} <i>should</i> implement these methods
+         * as specified in this class.</p>
+         */
+        abstract class Abstract implements ClassInfo {
+
+            @Override
+            public final boolean equals(Object o) {
+                if (this == o) {
+                    return true;
+                }
+                if (!(o instanceof ClassInfo)) {
+                    return false;
+                }
+
+                ClassInfo other = (ClassInfo) o;
+                return getName().equals(other.getName());
+            }
+
+            @Override
+            public final int hashCode() {
+                return getName().hashCode();
+            }
+
+            @Override
+            public String toString() {
+                return "ClassInfo{" +
+                        "name='" + getName() + '\'' +
+                        ", interface=" + isInterface() +
+                        ", superName='" + getSuperName() + '\'' +
+                        ", interfaces=" + getInterfaces() +
+                        ", fields=" + getFields() +
+                        ", methods=" + getMethods() +
+                        '}';
+            }
+
+        }
+
+        /**
+         * A default, simple implementation of {@link ClassInfo}.
+         */
+        class Impl extends Abstract implements ClassInfo {
 
             protected final String name;
+            protected final boolean isInterface;
             protected final String superName;
-            protected final List<String> interfaces = new ArrayList<>();
-            protected final List<FieldSignature> fields = new ArrayList<>();
-            protected final List<MethodSignature> methods = new ArrayList<>();
+            protected final List<String> interfaces;
+            protected final Map<FieldSignature, InheritanceType> fields;
+            protected final Map<MethodSignature, InheritanceType> methods;
 
-            protected Impl(final String name, final String superName) {
+            protected Set<ClassInfo> parents;
+
+            public Impl(final String name, boolean isInterface, final String superName, List<String> interfaces,
+                    Map<FieldSignature, InheritanceType> fields, Map<MethodSignature, InheritanceType> methods) {
                 this.name = name;
-                this.superName = superName;
+                this.isInterface = isInterface;
+                this.superName = superName != null ? superName : "";
+                this.interfaces = Collections.unmodifiableList(interfaces);
+                this.fields = Collections.unmodifiableMap(fields);
+                this.methods = Collections.unmodifiableMap(methods);
             }
 
             @Override
             public String getName() {
                 return this.name;
+            }
+
+            @Override
+            public boolean isInterface() {
+                return this.isInterface;
             }
 
             @Override
@@ -143,17 +366,35 @@ public interface InheritanceProvider {
 
             @Override
             public List<String> getInterfaces() {
-                return Collections.unmodifiableList(this.interfaces);
+                return this.interfaces;
             }
 
             @Override
-            public List<FieldSignature> getFields() {
-                return Collections.unmodifiableList(this.fields);
+            public Map<FieldSignature, InheritanceType> getFields() {
+                return this.fields;
             }
 
             @Override
-            public List<MethodSignature> getMethods() {
-                return Collections.unmodifiableList(this.methods);
+            public Map<MethodSignature, InheritanceType> getMethods() {
+                return this.methods;
+            }
+
+            @Override
+            public Set<ClassInfo> provideParents(InheritanceProvider provider) {
+                if (this.parents == null) {
+                    this.parents = ClassInfo.super.provideParents(provider);
+                }
+                return this.parents;
+            }
+
+            @Override
+            public void provideParents(InheritanceProvider provider, Collection<ClassInfo> parents) {
+                parents.addAll(provideParents(provider));
+            }
+
+            @Override
+            public ClassInfo lazy() {
+                return this; // Impl has all values computed already
             }
 
         }

@@ -32,6 +32,7 @@ package me.jamiemansfield.bombe.type.signature;
 
 import me.jamiemansfield.bombe.type.MethodDescriptor;
 
+import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -66,6 +67,10 @@ public class MethodSignature extends MemberSignature {
     public static MethodSignature of(final String nameAndDescriptor) {
         int methodIndex = nameAndDescriptor.indexOf('(');
         return of(nameAndDescriptor.substring(0, methodIndex), nameAndDescriptor.substring(methodIndex));
+    }
+
+    public static MethodSignature of(final Method method) {
+        return new MethodSignature(method.getName(), MethodDescriptor.of(method));
     }
 
     /**

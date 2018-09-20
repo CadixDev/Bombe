@@ -28,47 +28,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package me.jamiemansfield.bombe.asm.analysis;
+package me.jamiemansfield.bombe.analysis;
 
-import me.jamiemansfield.bombe.analysis.InheritanceProvider;
-import org.objectweb.asm.ClassReader;
-
-import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
- * An {@link InheritanceProvider} that obtains all of its information
- * from a given {@link ClassLoader}.
+ * An {@link InheritanceProvider} that wraps another {@link InheritanceProvider}
+ * and caches all requests. If information is needed more than once, use of this
+ * class is recommended to improve performance.
  *
- * @author Jamie Mansfield
- * @since 0.1.0
+ * @author Minecrell
+ * @since 0.3.0
  */
-public class ClassLoaderInheritanceProvider implements InheritanceProvider {
+public class CachingInheritanceProvider implements InheritanceProvider {
 
-    private final ClassLoader classLoader;
+    private final InheritanceProvider provider;
+    private final Map<String, Optional<ClassInfo>> cache = new HashMap<>();
 
-    public ClassLoaderInheritanceProvider(final ClassLoader classLoader) {
-        this.classLoader = classLoader;
+    public CachingInheritanceProvider(InheritanceProvider provider) {
+        this.provider = provider;
     }
 
     @Override
-    public Optional<ClassInfo> provide(final String klass) {
-        final String internalName = klass + ".class";
+    public Optional<ClassInfo> provide(String klass) {
+        return this.cache.computeIfAbsent(klass, this.provider::provide);
+    }
 
-        try (final InputStream in = classLoader.getResourceAsStream(internalName)) {
-            if (in == null) return Optional.empty();
-
-            // I read the class using ASM as getting the information required using
-            // reflection is awkward.
-            // Additionally, it allows me to share code - which is always a positive!
-            final ClassReader reader = new ClassReader(in);
-
-            InheritanceClassInfoVisitor visitor = new InheritanceClassInfoVisitor();
-            reader.accept(visitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
-            return Optional.of(visitor.create());
-        } catch (Exception ignored) {
-            return Optional.empty(); // TODO?
-        }
+    @Override
+    public Optional<ClassInfo> provide(String klass, Object context) {
+        return this.cache.computeIfAbsent(klass, k -> this.provider.provide(k, context));
     }
 
 }

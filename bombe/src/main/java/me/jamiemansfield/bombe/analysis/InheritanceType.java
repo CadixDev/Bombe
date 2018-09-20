@@ -28,34 +28,53 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package me.jamiemansfield.bombe.asm.analysis;
+package me.jamiemansfield.bombe.analysis;
 
-import me.jamiemansfield.bombe.analysis.InheritanceProvider;
-import me.jamiemansfield.bombe.type.signature.FieldSignature;
-import me.jamiemansfield.bombe.type.signature.MethodSignature;
-import org.objectweb.asm.tree.ClassNode;
+import java.lang.reflect.Modifier;
 
 /**
- * An implementation of {@link InheritanceProvider.ClassInfo} using data
- * obtained through a {@link ClassNode}.
+ * Represents the (access) type of inheritance used by a specific member.
+ * It is used to check if an inherited class could access a specific member
+ * from a parent class.
  *
- * @author Jamie Mansfield
- * @since 0.1.0
+ * @author Minecrell
+ * @since 0.3.0
  */
-class ClassNodeClassInfo extends InheritanceProvider.ClassInfo.Impl {
+public enum InheritanceType {
+    NONE,
+    PACKAGE_PRIVATE,
+    PROTECTED,
+    PUBLIC;
 
-    ClassNodeClassInfo(final ClassNode klass) {
-        super(
-                klass.name,
-                klass.superName
-        );
-        this.interfaces.addAll(klass.interfaces);
-        klass.fields.stream()
-                .map(fieldNode -> FieldSignature.of(fieldNode.name, fieldNode.desc))
-                .forEach(this.fields::add);
-        klass.methods.stream()
-                .map(methodNode -> MethodSignature.of(methodNode.name, methodNode.desc))
-                .forEach(this.methods::add);
+    /**
+     * Returns whether the given child class could access a specific member
+     * from the given parent class.
+     *
+     * @param parent The parent class
+     * @param child The child class
+     * @return {@code true} if the child class could access the member
+     */
+    public boolean canInherit(InheritanceProvider.ClassInfo parent, InheritanceProvider.ClassInfo child) {
+        return this != NONE && (this != PACKAGE_PRIVATE || parent.getPackage().equals(child.getPackage()));
     }
 
+    /**
+     * Returns the appropriate {@link InheritanceType} for the given modifiers
+     * of a member.
+     *
+     * @param modifiers The modifiers of the member
+     * @return The inheritance type
+     * @see Modifier
+     */
+    public static InheritanceType fromModifiers(int modifiers) {
+        if ((modifiers & Modifier.PUBLIC) != 0) {
+            return PUBLIC;
+        } else if ((modifiers & Modifier.PROTECTED) != 0) {
+            return PROTECTED;
+        } else if ((modifiers & Modifier.PRIVATE) == 0) {
+            return PACKAGE_PRIVATE;
+        } else {
+            return NONE;
+        }
+    }
 }

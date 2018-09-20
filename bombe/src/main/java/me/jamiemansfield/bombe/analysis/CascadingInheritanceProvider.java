@@ -74,4 +74,13 @@ public class CascadingInheritanceProvider implements InheritanceProvider {
         return Optional.empty();
     }
 
+    @Override
+    public Optional<ClassInfo> provide(String klass, Object context) {
+        for (final InheritanceProvider provider : this.providers) {
+            final Optional<ClassInfo> info = provider.provide(klass, context);
+            if (info.isPresent()) return info;
+        }
+        return Optional.empty();
+    }
+
 }
