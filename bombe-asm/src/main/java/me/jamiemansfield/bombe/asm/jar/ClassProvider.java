@@ -28,48 +28,42 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package me.jamiemansfield.bombe.asm.analysis;
+package me.jamiemansfield.bombe.asm.jar;
 
-import me.jamiemansfield.bombe.analysis.InheritanceProvider;
-import me.jamiemansfield.bombe.analysis.InheritanceType;
-import me.jamiemansfield.bombe.asm.jar.SourceSet;
-import me.jamiemansfield.bombe.type.signature.FieldSignature;
-import me.jamiemansfield.bombe.type.signature.MethodSignature;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 /**
- * An {@link InheritanceProvider} that obtains all of its information
- * from a given {@link SourceSet}.
+ * A provider of classes.
  *
  * @author Jamie Mansfield
- * @since 0.1.0
+ * @since 0.3.0
  */
-public class SourceSetInheritanceProvider implements InheritanceProvider {
+@FunctionalInterface
+public interface ClassProvider {
 
-    private final SourceSet sources;
+    /**
+     * Gets the given class, represented as a byte array.
+     *
+     * @param klass The name of the class
+     * @return The class
+     */
+    byte[] get(final String klass);
 
-    public SourceSetInheritanceProvider(final SourceSet sources) {
-        this.sources = sources;
-    }
+    /**
+     * Gets the given class, represented as a {@link ClassNode}.
+     *
+     * @param klass The name of the class
+     * @return The class node
+     */
+    default ClassNode getAsNode(final String klass) {
+        final byte[] contents = this.get(klass);
+        if (contents == null) return null;
 
-    @Override
-    public Optional<ClassInfo> provide(final String klass) {
-        if (this.sources.has(klass)) {
-            final ClassNode node = this.sources.get(klass);
-            return Optional.of(new ClassInfo.Impl(node.name, (node.access & Opcodes.ACC_INTERFACE) != 0, node.superName, node.interfaces,
-                    node.fields.stream()
-                            .collect(Collectors.toMap(f -> FieldSignature.of(f.name, f.desc), f -> InheritanceType.fromModifiers(f.access))),
-                    node.methods.stream()
-                            .collect(Collectors.toMap(m -> MethodSignature.of(m.name, m.desc), m -> InheritanceType.fromModifiers(m.access)))
-            ));
-        }
-        else {
-            return Optional.empty();
-        }
+        final ClassReader reader = new ClassReader(contents);
+        final ClassNode node = new ClassNode();
+        reader.accept(node, 0);
+        return node;
     }
 
 }

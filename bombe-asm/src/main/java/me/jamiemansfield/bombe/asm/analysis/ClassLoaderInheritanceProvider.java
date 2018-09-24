@@ -31,10 +31,11 @@
 package me.jamiemansfield.bombe.asm.analysis;
 
 import me.jamiemansfield.bombe.analysis.InheritanceProvider;
-import org.objectweb.asm.ClassReader;
+import me.jamiemansfield.bombe.util.ByteStreams;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
 
 /**
  * An {@link InheritanceProvider} that obtains all of its information
@@ -43,33 +44,21 @@ import java.util.Optional;
  * @author Jamie Mansfield
  * @since 0.1.0
  */
-public class ClassLoaderInheritanceProvider implements InheritanceProvider {
-
-    private final ClassLoader classLoader;
+public class ClassLoaderInheritanceProvider extends ClassProviderInheritanceProvider {
 
     public ClassLoaderInheritanceProvider(final ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
+        super(klass -> {
+            final String internalName = klass + ".class";
 
-    @Override
-    public Optional<ClassInfo> provide(final String klass) {
-        final String internalName = klass + ".class";
-
-        try (final InputStream in = classLoader.getResourceAsStream(internalName)) {
-            if (in == null) return Optional.empty();
-
-            // I read the class using ASM as getting the information required using
-            // reflection is awkward.
-            // Additionally, it allows me to share code - which is always a positive!
-            final ClassReader reader = new ClassReader(in);
-
-            final InheritanceClassInfoVisitor visitor = new InheritanceClassInfoVisitor();
-            reader.accept(visitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
-            return Optional.of(visitor.create());
-        }
-        catch (final Exception ex) {
-            return Optional.empty(); // TODO?
-        }
+            try (final InputStream in = classLoader.getResourceAsStream(internalName)) {
+                final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ByteStreams.copy(in, baos);
+                return baos.toByteArray();
+            }
+            catch (final IOException ignored) {
+                return null;
+            }
+        });
     }
 
 }

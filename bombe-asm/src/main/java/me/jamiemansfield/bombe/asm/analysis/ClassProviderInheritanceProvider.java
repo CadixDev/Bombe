@@ -28,27 +28,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package me.jamiemansfield.bombe.asm.jar;
+package me.jamiemansfield.bombe.asm.analysis;
 
-import org.objectweb.asm.tree.ClassNode;
+import me.jamiemansfield.bombe.analysis.InheritanceProvider;
+import me.jamiemansfield.bombe.asm.jar.ClassProvider;
+import org.objectweb.asm.ClassReader;
+
+import java.util.Optional;
 
 /**
- * Represents an object, that can walk through classes and
- * load them into a {@link SourceSet}.
- *
- * @see JarWalker
+ * An implementation of {@link InheritanceProvider} that retrieves all of
+ * its information from a {@link ClassProvider}.
  *
  * @author Jamie Mansfield
- * @since 0.1.0
+ * @since 0.3.0
  */
-public interface Walker {
+public class ClassProviderInheritanceProvider implements InheritanceProvider {
 
-    /**
-     * Walks through the previously given source, and loads
-     * the {@link ClassNode}s into the given {@link SourceSet}.
-     *
-     * @param sourceSet The source set
-     */
-    void walk(final SourceSet sourceSet);
+    private final ClassProvider provider;
+
+    public ClassProviderInheritanceProvider(final ClassProvider provider) {
+        this.provider = provider;
+    }
+
+    @Override
+    public Optional<ClassInfo> provide(final String klass) {
+        final ClassReader reader = new ClassReader(this.provider.get(klass));
+        final InheritanceClassInfoVisitor classInfoVisitor = new InheritanceClassInfoVisitor();
+        reader.accept(classInfoVisitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+        return Optional.of(classInfoVisitor.create());
+    }
 
 }

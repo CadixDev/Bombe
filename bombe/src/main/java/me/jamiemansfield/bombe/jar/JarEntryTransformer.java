@@ -39,10 +39,22 @@ package me.jamiemansfield.bombe.jar;
  */
 public interface JarEntryTransformer {
 
+    /**
+     * Transforms the given class entry.
+     *
+     * @param entry The class entry
+     * @return The transformed entry
+     */
     default JarClassEntry transform(final JarClassEntry entry) {
         return entry;
     }
 
+    /**
+     * Transforms the given resource entry.
+     *
+     * @param entry The resource entry
+     * @return The transformed entry
+     */
     default JarResourceEntry transform(final JarResourceEntry entry) {
         return entry;
     }

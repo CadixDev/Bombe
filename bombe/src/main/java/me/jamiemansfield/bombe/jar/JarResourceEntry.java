@@ -30,6 +30,13 @@
 
 package me.jamiemansfield.bombe.jar;
 
+/**
+ * Represents an entry within a jar file, that isn't a class
+ * entry.
+ *
+ * @author Jamie Mansfield
+ * @since 0.3.0
+ */
 public class JarResourceEntry extends AbstractJarEntry {
 
     private String extension;
@@ -47,7 +54,7 @@ public class JarResourceEntry extends AbstractJarEntry {
     }
 
     @Override
-    public JarResourceEntry accept(final JarEntryTransformer vistor) {
+    public final JarResourceEntry accept(final JarEntryTransformer vistor) {
         return vistor.transform(this);
     }
 
