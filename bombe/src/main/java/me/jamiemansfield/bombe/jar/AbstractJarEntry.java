@@ -114,6 +114,7 @@ public abstract class AbstractJarEntry {
     public final void write(final JarOutputStream jos) throws IOException {
         jos.putNextEntry(new JarEntry(this.name));
         jos.write(this.contents);
+        jos.closeEntry();
     }
 
     /**

@@ -35,6 +35,7 @@ import me.jamiemansfield.bombe.util.ByteStreams;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
@@ -51,12 +52,24 @@ import java.util.stream.Stream;
  */
 public final class Jars {
 
+    /**
+     * Walks through the entries within the given file.
+     *
+     * @param jarPath The path to the jar file
+     * @return The jar entries
+     */
     public static Stream<AbstractJarEntry> walk(final Path jarPath) throws IOException {
         try (final JarFile jarFile = new JarFile(jarPath.toFile())) {
             return walk(jarFile);
         }
     }
 
+    /**
+     * Walks through the entries within the given {@link JarFile}.
+     *
+     * @param jarFile The jar file
+     * @return The jar entries
+     */
     public static Stream<AbstractJarEntry> walk(final JarFile jarFile) {
         return jarFile.stream().filter(entry -> !entry.isDirectory()).map(entry -> {
             final String name = entry.getName();
@@ -78,7 +91,32 @@ public final class Jars {
         });
     }
 
-    public static JarOutputStream transform(final JarOutputStream jos, final JarFile jarFile, final JarEntryTransformer... transformers) {
+    /**
+     * Transforms the entries within the given input {@link Path} with the transformers,
+     * to the given output {@link Path}.
+     *
+     * @param input The input jar path
+     * @param output The output jar path
+     * @param transformers The transformers
+     * @throws IOException If an I/O exception occurs
+     */
+    public static void transform(final Path input, final Path output, final JarEntryTransformer... transformers) throws IOException {
+        try (final JarFile jarFile = new JarFile(input.toFile());
+             final JarOutputStream jos = new JarOutputStream(Files.newOutputStream(output))) {
+            transform(jarFile, jos, transformers);
+        }
+    }
+
+    /**
+     * Transforms the entries with the given {@link JarFile} with the transformers,
+     * to the given {@link JarOutputStream}.
+     *
+     * @param jarFile The jar file
+     * @param jos The jar output stream
+     * @param transformers The transformers to apply
+     * @return The jar output stream
+     */
+    public static JarOutputStream transform(final JarFile jarFile, final JarOutputStream jos, final JarEntryTransformer... transformers) {
         final JarEntryTransformer masterTransformer = new JarEntryTransformer() {
             @Override
             public JarClassEntry transform(final JarClassEntry entry) {
@@ -107,6 +145,7 @@ public final class Jars {
                         if (!packages.contains(entry.getPackage())) {
                             packages.add(entry.getPackage());
                             jos.putNextEntry(new JarEntry(entry.getPackage() + "/"));
+                            jos.closeEntry();
                         }
 
                         entry.write(jos);
