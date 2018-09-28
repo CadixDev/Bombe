@@ -28,9 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package me.jamiemansfield.bombe.asm.analysis;
+package me.jamiemansfield.bombe.asm.jar;
 
-import me.jamiemansfield.bombe.analysis.InheritanceProvider;
 import me.jamiemansfield.bombe.util.ByteStreams;
 
 import java.io.ByteArrayOutputStream;
@@ -38,27 +37,31 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * An {@link InheritanceProvider} that obtains all of its information
- * from a given {@link ClassLoader}.
+ * An implementation of {@link ClassProvider} backed by a {@link ClassLoader}.
  *
  * @author Jamie Mansfield
- * @since 0.1.0
+ * @since 0.3.0
  */
-public class ClassLoaderInheritanceProvider extends ClassProviderInheritanceProvider {
+public class ClassLoaderClassProvider implements ClassProvider {
 
-    public ClassLoaderInheritanceProvider(final ClassLoader classLoader) {
-        super(klass -> {
-            final String internalName = klass + ".class";
+    private final ClassLoader loader;
 
-            try (final InputStream in = classLoader.getResourceAsStream(internalName)) {
-                final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ByteStreams.copy(in, baos);
-                return baos.toByteArray();
-            }
-            catch (final IOException ignored) {
-                return null;
-            }
-        });
+    public ClassLoaderClassProvider(final ClassLoader loader) {
+        this.loader = loader;
+    }
+
+    @Override
+    public byte[] get(final String klass) {
+        final String internalName = klass + ".class";
+
+        try (final InputStream in = this.loader.getResourceAsStream(internalName)) {
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ByteStreams.copy(in, baos);
+            return baos.toByteArray();
+        }
+        catch (final IOException ignored) {
+            return null;
+        }
     }
 
 }

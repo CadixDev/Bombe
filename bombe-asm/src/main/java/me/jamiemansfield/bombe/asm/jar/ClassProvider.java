@@ -43,10 +43,20 @@ import org.objectweb.asm.tree.ClassNode;
 public interface ClassProvider {
 
     /**
+     * Creates a class provider for the given {@link ClassLoader}.
+     *
+     * @param loader The class loader
+     * @return The class provider
+     */
+    static ClassProvider of(final ClassLoader loader) {
+        return new ClassLoaderClassProvider(loader);
+    }
+
+    /**
      * Gets the given class, represented as a byte array.
      *
      * @param klass The name of the class
-     * @return The class
+     * @return The class, or {@code null} if unavailable
      */
     byte[] get(final String klass);
 
