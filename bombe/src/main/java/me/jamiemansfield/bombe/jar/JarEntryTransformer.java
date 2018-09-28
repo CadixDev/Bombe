@@ -28,27 +28,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package me.jamiemansfield.bombe.asm.jar;
-
-import org.objectweb.asm.tree.ClassNode;
+package me.jamiemansfield.bombe.jar;
 
 /**
- * Represents an object, that can walk through classes and
- * load them into a {@link SourceSet}.
- *
- * @see JarWalker
+ * A visitor for {@link AbstractJarEntry}, allowing them be be
+ * transformed.
  *
  * @author Jamie Mansfield
- * @since 0.1.0
+ * @since 0.3.0
  */
-public interface Walker {
+public interface JarEntryTransformer {
 
     /**
-     * Walks through the previously given source, and loads
-     * the {@link ClassNode}s into the given {@link SourceSet}.
+     * Transforms the given class entry.
      *
-     * @param sourceSet The source set
+     * @param entry The class entry
+     * @return The transformed entry
      */
-    void walk(final SourceSet sourceSet);
+    default JarClassEntry transform(final JarClassEntry entry) {
+        return entry;
+    }
+
+    /**
+     * Transforms the given resource entry.
+     *
+     * @param entry The resource entry
+     * @return The transformed entry
+     */
+    default JarResourceEntry transform(final JarResourceEntry entry) {
+        return entry;
+    }
 
 }

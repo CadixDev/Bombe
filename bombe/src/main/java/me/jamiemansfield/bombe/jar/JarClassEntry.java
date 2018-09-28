@@ -28,48 +28,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package me.jamiemansfield.bombe.asm.analysis;
-
-import me.jamiemansfield.bombe.analysis.InheritanceProvider;
-import org.objectweb.asm.ClassReader;
-
-import java.io.InputStream;
-import java.util.Optional;
+package me.jamiemansfield.bombe.jar;
 
 /**
- * An {@link InheritanceProvider} that obtains all of its information
- * from a given {@link ClassLoader}.
+ * Represents a class entry within a jar.
  *
  * @author Jamie Mansfield
- * @since 0.1.0
+ * @since 0.3.0
  */
-public class ClassLoaderInheritanceProvider implements InheritanceProvider {
+public class JarClassEntry extends AbstractJarEntry {
 
-    private final ClassLoader classLoader;
+    private static final String EXTENSION = "class";
 
-    public ClassLoaderInheritanceProvider(final ClassLoader classLoader) {
-        this.classLoader = classLoader;
+    public JarClassEntry(final String name, final byte[] contents) {
+        super(name, contents);
     }
 
     @Override
-    public Optional<ClassInfo> provide(final String klass) {
-        final String internalName = klass + ".class";
+    public final String getExtension() {
+        return EXTENSION;
+    }
 
-        try (final InputStream in = classLoader.getResourceAsStream(internalName)) {
-            if (in == null) return Optional.empty();
-
-            // I read the class using ASM as getting the information required using
-            // reflection is awkward.
-            // Additionally, it allows me to share code - which is always a positive!
-            final ClassReader reader = new ClassReader(in);
-
-            final InheritanceClassInfoVisitor visitor = new InheritanceClassInfoVisitor();
-            reader.accept(visitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
-            return Optional.of(visitor.create());
-        }
-        catch (final Exception ex) {
-            return Optional.empty(); // TODO?
-        }
+    @Override
+    public final JarClassEntry accept(final JarEntryTransformer vistor) {
+        return vistor.transform(this);
     }
 
 }
