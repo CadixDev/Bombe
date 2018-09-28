@@ -30,73 +30,43 @@
 
 package me.jamiemansfield.bombe.asm.jar;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.tree.ClassNode;
+import me.jamiemansfield.bombe.util.ByteStreams;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * A provider of classes.
+ * An implementation of {@link ClassProvider} backed by a {@link JarFile}.
  *
  * @author Jamie Mansfield
  * @since 0.3.0
  */
-@FunctionalInterface
-public interface ClassProvider {
+public class JarFileClassProvider implements ClassProvider {
 
-    /**
-     * Creates a class provider for the given {@link ClassLoader}.
-     *
-     * @param loader The class loader
-     * @return The class provider
-     */
-    static ClassProvider of(final ClassLoader loader) {
-        return new ClassLoaderClassProvider(loader);
+    private final JarFile jar;
+
+    public JarFileClassProvider(final JarFile jar) {
+        this.jar = jar;
     }
 
-    /**
-     * Creates a class provider for the given {@link JarFile}.
-     *
-     * @param jar The jar file
-     * @return The class provider
-     */
-    static ClassProvider of(final JarFile jar) {
-        return new JarFileClassProvider(jar);
-    }
+    @Override
+    public byte[] get(final String klass) {
+        final String internalName = klass + ".class";
 
-    /**
-     * Gets the given class, represented as a byte array.
-     *
-     * @param klass The name of the class
-     * @return The class, or {@code null} if unavailable
-     */
-    byte[] get(final String klass);
+        final JarEntry entry = this.jar.getJarEntry(internalName);
+        if (entry == null) return null;
 
-    /**
-     * Gets the given class, represented as a {@link ClassNode}.
-     *
-     * @param klass The name of the class
-     * @param parsingOptions The parsing options
-     * @return The class node
-     */
-    default ClassNode getAsNode(final String klass, final int parsingOptions) {
-        final byte[] contents = this.get(klass);
-        if (contents == null) return null;
-
-        final ClassReader reader = new ClassReader(contents);
-        final ClassNode node = new ClassNode();
-        reader.accept(node, parsingOptions);
-        return node;
-    }
-
-    /**
-     * Gets the given class, represented as a {@link ClassNode}.
-     *
-     * @param klass The name of the class
-     * @return The class node
-     */
-    default ClassNode getAsNode(final String klass) {
-        return this.getAsNode(klass, 0);
+        try (final InputStream in = this.jar.getInputStream(entry)) {
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ByteStreams.copy(in, baos);
+            return baos.toByteArray();
+        }
+        catch (final IOException ignored) {
+            return null;
+        }
     }
 
 }
