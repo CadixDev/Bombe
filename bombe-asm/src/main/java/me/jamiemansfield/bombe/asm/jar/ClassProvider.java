@@ -64,16 +64,27 @@ public interface ClassProvider {
      * Gets the given class, represented as a {@link ClassNode}.
      *
      * @param klass The name of the class
+     * @param parsingOptions The parsing options
      * @return The class node
      */
-    default ClassNode getAsNode(final String klass) {
+    default ClassNode getAsNode(final String klass, final int parsingOptions) {
         final byte[] contents = this.get(klass);
         if (contents == null) return null;
 
         final ClassReader reader = new ClassReader(contents);
         final ClassNode node = new ClassNode();
-        reader.accept(node, 0);
+        reader.accept(node, parsingOptions);
         return node;
+    }
+
+    /**
+     * Gets the given class, represented as a {@link ClassNode}.
+     *
+     * @param klass The name of the class
+     * @return The class node
+     */
+    default ClassNode getAsNode(final String klass) {
+        return this.getAsNode(klass, 0);
     }
 
 }
