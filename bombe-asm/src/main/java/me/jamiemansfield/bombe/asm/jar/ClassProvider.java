@@ -77,7 +77,7 @@ public interface ClassProvider {
      *
      * @param klass The name of the class
      * @param parsingOptions The parsing options
-     * @return The class node
+     * @return The class node, or {@code null} if unavailable
      */
     default ClassNode getAsNode(final String klass, final int parsingOptions) {
         final byte[] contents = this.get(klass);

@@ -53,7 +53,10 @@ public class ClassProviderInheritanceProvider implements InheritanceProvider {
 
     @Override
     public Optional<ClassInfo> provide(final String klass) {
-        final ClassReader reader = new ClassReader(this.provider.get(klass));
+        final byte[] classBytes = this.provider.get(klass);
+        if (classBytes == null) return Optional.empty();
+
+        final ClassReader reader = new ClassReader(classBytes);
         final InheritanceClassInfoVisitor classInfoVisitor = new InheritanceClassInfoVisitor();
         reader.accept(classInfoVisitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
         return Optional.of(classInfoVisitor.create());
