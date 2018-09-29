@@ -50,6 +50,15 @@ public class JarServiceProviderConfigurationEntry extends AbstractJarEntry {
         this.config = config;
     }
 
+    /**
+     * Gets the service provider configuration.
+     *
+     * @return The config
+     */
+    public final ServiceProviderConfiguration getConfig() {
+        return this.config;
+    }
+
     @Override
     public final String getExtension() {
         if (this.extension != null) return this.extension;
