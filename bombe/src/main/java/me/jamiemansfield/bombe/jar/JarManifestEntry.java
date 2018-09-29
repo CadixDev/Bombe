@@ -30,53 +30,56 @@
 
 package me.jamiemansfield.bombe.jar;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.jar.Manifest;
+
 /**
- * A visitor for {@link AbstractJarEntry}, allowing them be be
- * transformed.
+ * Represents the manifest entry within a jar file.
  *
  * @author Jamie Mansfield
  * @since 0.3.0
  */
-public interface JarEntryTransformer {
+public class JarManifestEntry extends AbstractJarEntry {
 
-    /**
-     * Transforms the given class entry.
-     *
-     * @param entry The class entry
-     * @return The transformed entry
-     */
-    default JarClassEntry transform(final JarClassEntry entry) {
-        return entry;
+    private static final String NAME = "META-INF/MANIFEST.MX";
+    private static final String EXTENSION = "MX";
+
+    private final Manifest manifest;
+
+    public JarManifestEntry(final Manifest manifest) {
+        super(NAME);
+        this.manifest = manifest;
     }
 
     /**
-     * Transforms the given resource entry.
+     * Gets the manifest.
      *
-     * @param entry The resource entry
-     * @return The transformed entry
+     * @return The manifest
      */
-    default JarResourceEntry transform(final JarResourceEntry entry) {
-        return entry;
+    public final Manifest getManifest() {
+        return this.manifest;
     }
 
-    /**
-     * Transforms the given manifest entry.
-     *
-     * @param entry The manifest entry
-     * @return The transformed entry
-     */
-    default JarManifestEntry transform(final JarManifestEntry entry) {
-        return entry;
+    @Override
+    public final String getExtension() {
+        return EXTENSION;
     }
 
-    /**
-     * Transforms the given service provider configuration entry.
-     *
-     * @param entry The service provider configuration entry
-     * @return The transformed entry
-     */
-    default JarServiceProviderConfigurationEntry transform(final JarServiceProviderConfigurationEntry entry) {
-        return entry;
+    @Override
+    public final byte[] getContents() {
+        try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            this.manifest.write(baos);
+            return baos.toByteArray();
+        }
+        catch (final IOException ignored) {
+            return null;
+        }
+    }
+
+    @Override
+    public JarManifestEntry accept(final JarEntryTransformer vistor) {
+        return vistor.transform(this);
     }
 
 }

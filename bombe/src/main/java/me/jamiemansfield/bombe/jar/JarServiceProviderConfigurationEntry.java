@@ -30,53 +30,48 @@
 
 package me.jamiemansfield.bombe.jar;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 /**
- * A visitor for {@link AbstractJarEntry}, allowing them be be
- * transformed.
+ * Represents a service provider configuration entry
+ * within a jar.
  *
  * @author Jamie Mansfield
  * @since 0.3.0
  */
-public interface JarEntryTransformer {
+public class JarServiceProviderConfigurationEntry extends AbstractJarEntry {
 
-    /**
-     * Transforms the given class entry.
-     *
-     * @param entry The class entry
-     * @return The transformed entry
-     */
-    default JarClassEntry transform(final JarClassEntry entry) {
-        return entry;
+    private final ServiceProviderConfiguration config;
+    private String extension;
+
+    public JarServiceProviderConfigurationEntry(final ServiceProviderConfiguration config) {
+        super("META-INF/services/" + config.getService());
+        this.config = config;
     }
 
-    /**
-     * Transforms the given resource entry.
-     *
-     * @param entry The resource entry
-     * @return The transformed entry
-     */
-    default JarResourceEntry transform(final JarResourceEntry entry) {
-        return entry;
+    @Override
+    public final String getExtension() {
+        if (this.extension != null) return this.extension;
+        final int index = this.name.lastIndexOf('.');
+        if (index == -1) return this.extension = "";
+        return this.extension = this.name.substring(index + 1);
     }
 
-    /**
-     * Transforms the given manifest entry.
-     *
-     * @param entry The manifest entry
-     * @return The transformed entry
-     */
-    default JarManifestEntry transform(final JarManifestEntry entry) {
-        return entry;
+    @Override
+    public final byte[] getContents() {
+        try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            this.config.write(baos);
+            return baos.toByteArray();
+        }
+        catch (final IOException ignored) {
+            return null;
+        }
     }
 
-    /**
-     * Transforms the given service provider configuration entry.
-     *
-     * @param entry The service provider configuration entry
-     * @return The transformed entry
-     */
-    default JarServiceProviderConfigurationEntry transform(final JarServiceProviderConfigurationEntry entry) {
-        return entry;
+    @Override
+    public final JarServiceProviderConfigurationEntry accept(final JarEntryTransformer vistor) {
+        return vistor.transform(this);
     }
 
 }

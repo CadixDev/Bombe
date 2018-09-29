@@ -43,13 +43,11 @@ import java.util.jar.JarOutputStream;
 public abstract class AbstractJarEntry {
 
     protected final String name;
-    protected final byte[] contents;
     private String packageName;
     private String simpleName;
 
-    protected AbstractJarEntry(final String name, final byte[] contents) {
+    protected AbstractJarEntry(final String name) {
         this.name = name;
-        this.contents = contents;
     }
 
     /**
@@ -101,9 +99,7 @@ public abstract class AbstractJarEntry {
      *
      * @return The contents
      */
-    public final byte[] getContents() {
-        return this.contents;
-    }
+    public abstract byte[] getContents();
 
     /**
      * Writes the jar entry to the given {@link JarOutputStream}.
@@ -113,7 +109,7 @@ public abstract class AbstractJarEntry {
      */
     public final void write(final JarOutputStream jos) throws IOException {
         jos.putNextEntry(new JarEntry(this.name));
-        jos.write(this.contents);
+        jos.write(this.getContents());
         jos.closeEntry();
     }
 

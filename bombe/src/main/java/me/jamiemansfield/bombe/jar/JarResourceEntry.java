@@ -39,10 +39,12 @@ package me.jamiemansfield.bombe.jar;
  */
 public class JarResourceEntry extends AbstractJarEntry {
 
+    private final byte[] contents;
     private String extension;
 
     public JarResourceEntry(final String name, final byte[] contents) {
-        super(name, contents);
+        super(name);
+        this.contents = contents;
     }
 
     @Override
@@ -51,6 +53,11 @@ public class JarResourceEntry extends AbstractJarEntry {
         final int index = this.name.lastIndexOf('.');
         if (index == -1) return this.extension = "";
         return this.extension = this.name.substring(index + 1);
+    }
+
+    @Override
+    public final byte[] getContents() {
+        return this.contents;
     }
 
     @Override

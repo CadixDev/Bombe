@@ -40,13 +40,21 @@ public class JarClassEntry extends AbstractJarEntry {
 
     private static final String EXTENSION = "class";
 
+    private final byte[] contents;
+
     public JarClassEntry(final String name, final byte[] contents) {
-        super(name, contents);
+        super(name);
+        this.contents = contents;
     }
 
     @Override
     public final String getExtension() {
         return EXTENSION;
+    }
+
+    @Override
+    public final byte[] getContents() {
+        return this.contents;
     }
 
     @Override

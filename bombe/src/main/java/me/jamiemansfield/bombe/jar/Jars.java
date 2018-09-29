@@ -38,10 +38,12 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
 /**
@@ -74,6 +76,17 @@ public final class Jars {
         return jarFile.stream().filter(entry -> !entry.isDirectory()).map(entry -> {
             final String name = entry.getName();
             try (final InputStream stream = jarFile.getInputStream(entry)) {
+                if (Objects.equals("META-INF/MANIFEST.MX", entry.getName())) {
+                    return new JarManifestEntry(new Manifest(stream));
+                }
+                else if (entry.getName().startsWith("META-INF/services/")) {
+                    final String serviceName = entry.getName().substring("META-INF/services/".length());
+
+                    final ServiceProviderConfiguration config = new ServiceProviderConfiguration(serviceName);
+                    config.read(stream);
+                    return new JarServiceProviderConfigurationEntry(config);
+                }
+
                 final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ByteStreams.copy(stream, baos);
 
