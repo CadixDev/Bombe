@@ -135,10 +135,20 @@ public interface InheritanceProvider {
         Map<FieldSignature, InheritanceType> getFields();
 
         /**
+         * Gets an unmodifiable view of all field names declared in the class.
+         * It does not include fields inherited from parent classes.
+         *
+         * @return The declared field names
+         * @since 0.3.0
+         */
+        Map<String, InheritanceType> getFieldsByName();
+
+        /**
          * Gets an unmodifiable view of all methods declared in the class.
          * It does not include methods inherited from parent classes.
          *
          * @return The declared methods
+         * @since 0.3.0
          */
         Map<MethodSignature, InheritanceType> getMethods();
 
@@ -218,6 +228,33 @@ public interface InheritanceProvider {
         }
 
         /**
+         * Returns the {@link InheritanceType} of a field declared in this class
+         * that matches the given {@link FieldSignature}.
+         *
+         * @param field The field signature
+         * @return The inheritance type or {@link InheritanceType#NONE}
+         * @since 0.3.0
+         */
+        default InheritanceType getField(final FieldSignature field) {
+            if (!field.getType().isPresent()) {
+                return this.getFieldsByName().getOrDefault(field.getName(), InheritanceType.NONE);
+            }
+            return this.getFields().getOrDefault(field, InheritanceType.NONE);
+        }
+
+        /**
+         * Returns the {@link InheritanceType} of a method declared in this class
+         * that matches the given {@link MethodSignature}.
+         *
+         * @param method The method signature
+         * @return The inheritance type or {@link InheritanceType#NONE}
+         * @since 0.3.0
+         */
+        default InheritanceType getMethod(final MethodSignature method) {
+            return this.getMethods().getOrDefault(method, InheritanceType.NONE);
+        }
+
+        /**
          * Returns whether the given child class could inherit the given field
          * from this parent class.
          *
@@ -232,7 +269,7 @@ public interface InheritanceProvider {
          * @since 0.3.0
          */
         default boolean canInherit(final ClassInfo child, final FieldSignature field) {
-            return this.getFields().getOrDefault(field, InheritanceType.NONE).canInherit(this, child);
+            return this.getField(field).canInherit(this, child);
         }
 
         /**
@@ -250,7 +287,7 @@ public interface InheritanceProvider {
          * @since 0.3.0
          */
         default boolean canInherit(final ClassInfo child, final MethodSignature method) {
-            return this.getMethods().getOrDefault(method, InheritanceType.NONE).canInherit(this, child);
+            return this.getMethod(method).canInherit(this, child);
         }
 
         /**
@@ -340,17 +377,20 @@ public interface InheritanceProvider {
             protected final String superName;
             protected final List<String> interfaces;
             protected final Map<FieldSignature, InheritanceType> fields;
+            protected final Map<String, InheritanceType> fieldsByName;
             protected final Map<MethodSignature, InheritanceType> methods;
 
             protected Set<ClassInfo> parents;
 
             public Impl(final String name, boolean isInterface, final String superName, List<String> interfaces,
-                    Map<FieldSignature, InheritanceType> fields, Map<MethodSignature, InheritanceType> methods) {
+                    Map<FieldSignature, InheritanceType> fields, Map<String, InheritanceType> fieldsByName,
+                    Map<MethodSignature, InheritanceType> methods) {
                 this.name = name;
                 this.isInterface = isInterface;
                 this.superName = superName != null ? superName : "";
                 this.interfaces = Collections.unmodifiableList(interfaces);
                 this.fields = Collections.unmodifiableMap(fields);
+                this.fieldsByName = Collections.unmodifiableMap(fieldsByName);
                 this.methods = Collections.unmodifiableMap(methods);
             }
 
@@ -377,6 +417,11 @@ public interface InheritanceProvider {
             @Override
             public Map<FieldSignature, InheritanceType> getFields() {
                 return this.fields;
+            }
+
+            @Override
+            public Map<String, InheritanceType> getFieldsByName() {
+                return this.fieldsByName;
             }
 
             @Override

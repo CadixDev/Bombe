@@ -23,6 +23,7 @@ class InheritanceClassInfoVisitor extends ClassVisitor {
     private List<String> interfaces = Collections.emptyList();
 
     private final Map<FieldSignature, InheritanceType> fields = new HashMap<>();
+    private final Map<String, InheritanceType> fieldsByName = new HashMap<>();
     private final Map<MethodSignature, InheritanceType> methods = new HashMap<>();
 
     InheritanceClassInfoVisitor() {
@@ -30,7 +31,8 @@ class InheritanceClassInfoVisitor extends ClassVisitor {
     }
 
     InheritanceProvider.ClassInfo create() {
-        return new InheritanceProvider.ClassInfo.Impl(this.name, this.isInterface, this.superName, this.interfaces, this.fields, this.methods);
+        return new InheritanceProvider.ClassInfo.Impl(this.name, this.isInterface, this.superName, this.interfaces,
+                this.fields, this.fieldsByName, this.methods);
     }
 
     @Override
@@ -43,7 +45,9 @@ class InheritanceClassInfoVisitor extends ClassVisitor {
 
     @Override
     public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
-        this.fields.put(FieldSignature.of(name, descriptor), InheritanceType.fromModifiers(access));
+        InheritanceType type = InheritanceType.fromModifiers(access);
+        this.fields.put(FieldSignature.of(name, descriptor), type);
+        this.fieldsByName.put(name, type);
         return null;
     }
 

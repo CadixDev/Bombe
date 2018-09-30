@@ -47,6 +47,7 @@ final class LazyInheritanceClassInfo extends InheritanceProvider.ClassInfo.Abstr
     private String superName;
     private List<String> interfaces;
     private Map<FieldSignature, InheritanceType> fields;
+    private Map<String, InheritanceType> fieldsByName;
     private Map<MethodSignature, InheritanceType> methods;
     private Set<InheritanceProvider.ClassInfo> parents;
 
@@ -87,6 +88,14 @@ final class LazyInheritanceClassInfo extends InheritanceProvider.ClassInfo.Abstr
             this.fields = this.provider.getFields();
         }
         return this.fields;
+    }
+
+    @Override
+    public Map<String, InheritanceType> getFieldsByName() {
+        if (this.fieldsByName == null) {
+            this.fieldsByName = this.provider.getFieldsByName();
+        }
+        return this.fieldsByName;
     }
 
     @Override

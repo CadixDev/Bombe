@@ -33,6 +33,7 @@ package me.jamiemansfield.bombe.analysis;
 import me.jamiemansfield.bombe.type.signature.FieldSignature;
 import me.jamiemansfield.bombe.type.signature.MethodSignature;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -120,6 +121,12 @@ public class ReflectionInheritanceProvider implements InheritanceProvider {
         public Map<FieldSignature, InheritanceType> getFields() {
             return Collections.unmodifiableMap(Arrays.stream(this.clazz.getDeclaredFields())
                     .collect(Collectors.toMap(FieldSignature::of, f -> InheritanceType.fromModifiers(f.getModifiers()))));
+        }
+
+        @Override
+        public Map<String, InheritanceType> getFieldsByName() {
+            return Collections.unmodifiableMap(Arrays.stream(this.clazz.getDeclaredFields())
+                    .collect(Collectors.toMap(Field::getName, f -> InheritanceType.fromModifiers(f.getModifiers()))));
         }
 
         @Override
