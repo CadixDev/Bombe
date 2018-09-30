@@ -80,6 +80,15 @@ public class ServiceProviderConfiguration {
     }
 
     /**
+     * Adds the given provider to the service configuration.
+     *
+     * @param provider The provider
+     */
+    public final void addProvider(final String provider) {
+        this.providers.add(provider);
+    }
+
+    /**
      * Reads a service provider configuration from the given
      * {@link InputStream}.
      *

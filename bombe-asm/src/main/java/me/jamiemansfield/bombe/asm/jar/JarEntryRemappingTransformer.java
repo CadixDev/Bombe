@@ -32,13 +32,18 @@ package me.jamiemansfield.bombe.asm.jar;
 
 import me.jamiemansfield.bombe.jar.JarClassEntry;
 import me.jamiemansfield.bombe.jar.JarEntryTransformer;
+import me.jamiemansfield.bombe.jar.JarManifestEntry;
+import me.jamiemansfield.bombe.jar.JarServiceProviderConfigurationEntry;
+import me.jamiemansfield.bombe.jar.ServiceProviderConfiguration;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 
+import java.util.List;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * An implementation of {@link JarEntryTransformer} for remapping classes
@@ -47,17 +52,17 @@ import java.util.function.BiFunction;
  * @author Jamie Mansfield
  * @since 0.3.0
  */
-public class RemappingJarEntryTransformer implements JarEntryTransformer {
+public class JarEntryRemappingTransformer implements JarEntryTransformer {
 
     private final Remapper remapper;
     private final BiFunction<ClassVisitor, Remapper, ClassRemapper> clsRemapper;
 
-    public RemappingJarEntryTransformer(final Remapper remapper, final BiFunction<ClassVisitor, Remapper, ClassRemapper> clsRemapper) {
+    public JarEntryRemappingTransformer(final Remapper remapper, final BiFunction<ClassVisitor, Remapper, ClassRemapper> clsRemapper) {
         this.remapper = remapper;
         this.clsRemapper = clsRemapper;
     }
 
-    public RemappingJarEntryTransformer(final Remapper remapper) {
+    public JarEntryRemappingTransformer(final Remapper remapper) {
         this(remapper, ClassRemapper::new);
     }
 
@@ -75,6 +80,39 @@ public class RemappingJarEntryTransformer implements JarEntryTransformer {
         final String originalName = entry.getName().substring(0, entry.getName().length() - ".class".length());
         final String name = this.remapper.map(originalName) + ".class";
         return new JarClassEntry(name, writer.toByteArray());
+    }
+
+    @Override
+    public JarManifestEntry transform(final JarManifestEntry entry) {
+        // Remap the Main-Class attribute
+        final String mainClassObf = entry.getManifest().getMainAttributes().getValue("Main-Class")
+                .replace('.', '/');
+        final String mainClassDeobf = this.remapper.map(mainClassObf)
+                .replace('/', '.');
+
+        // Since Manifest is mutable, we need'nt create a new entry \o/
+        entry.getManifest().getMainAttributes().putValue("Main-Class", mainClassDeobf);
+        return entry;
+    }
+
+    @Override
+    public JarServiceProviderConfigurationEntry transform(final JarServiceProviderConfigurationEntry entry) {
+        // Remap the Service class
+        final String obfServiceName = entry.getConfig().getService()
+                .replace('.', '/');
+        final String deobfServiceName = this.remapper.map(obfServiceName)
+                .replace('/', '.');
+
+        // Remap the Provider classes
+        final List<String> deobfProviders = entry.getConfig().getProviders().stream()
+                .map(provider -> provider.replace('.', '/'))
+                .map(this.remapper::map)
+                .map(provider -> provider.replace('/', '.'))
+                .collect(Collectors.toList());
+
+        // Create the new entry
+        final ServiceProviderConfiguration config = new ServiceProviderConfiguration(deobfServiceName, deobfProviders);
+        return new JarServiceProviderConfigurationEntry(config);
     }
 
 }
