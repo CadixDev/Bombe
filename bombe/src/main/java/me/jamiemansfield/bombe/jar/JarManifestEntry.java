@@ -42,8 +42,8 @@ import java.util.jar.Manifest;
  */
 public class JarManifestEntry extends AbstractJarEntry {
 
-    private static final String NAME = "META-INF/MANIFEST.MX";
-    private static final String EXTENSION = "MX";
+    private static final String NAME = "META-INF/MANIFEST.MF";
+    private static final String EXTENSION = "MF";
 
     private final Manifest manifest;
 

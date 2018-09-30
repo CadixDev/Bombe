@@ -76,7 +76,7 @@ public final class Jars {
         return jarFile.stream().filter(entry -> !entry.isDirectory()).map(entry -> {
             final String name = entry.getName();
             try (final InputStream stream = jarFile.getInputStream(entry)) {
-                if (Objects.equals("META-INF/MANIFEST.MX", entry.getName())) {
+                if (Objects.equals("META-INF/MANIFEST.MF", entry.getName())) {
                     return new JarManifestEntry(new Manifest(stream));
                 }
                 else if (entry.getName().startsWith("META-INF/services/")) {
