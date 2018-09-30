@@ -130,29 +130,14 @@ public final class Jars {
      * @return The jar output stream
      */
     public static JarOutputStream transform(final JarFile jarFile, final JarOutputStream jos, final JarEntryTransformer... transformers) {
-        final JarEntryTransformer masterTransformer = new JarEntryTransformer() {
-            @Override
-            public JarClassEntry transform(final JarClassEntry entry) {
-                JarClassEntry lastEntry = entry;
-                for (final JarEntryTransformer transformer : transformers) {
-                    lastEntry = entry.accept(transformer);
-                }
-                return lastEntry;
-            }
-
-            @Override
-            public JarResourceEntry transform(final JarResourceEntry entry) {
-                JarResourceEntry lastEntry = entry;
-                for (final JarEntryTransformer transformer : transformers) {
-                    lastEntry = entry.accept(transformer);
-                }
-                return lastEntry;
-            }
-        };
-
         final Set<String> packages = new HashSet<>();
         walk(jarFile)
-                .map(entry -> entry.accept(masterTransformer))
+                .map(entry -> {
+                    for (final JarEntryTransformer transformer : transformers) {
+                        entry = entry.accept(transformer);
+                    }
+                    return entry;
+                })
                 .forEach(entry -> {
                     try {
                         if (!packages.contains(entry.getPackage())) {
