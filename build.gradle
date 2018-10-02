@@ -5,7 +5,7 @@ subprojects {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
 
-    group = 'me.jamiemansfield'
+    group = 'org.cadixdev'
     archivesBaseName = project.name.toLowerCase()
     version = '0.3.0-SNAPSHOT'
 
