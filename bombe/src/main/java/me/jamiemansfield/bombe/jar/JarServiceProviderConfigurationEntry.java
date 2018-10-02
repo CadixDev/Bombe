@@ -45,8 +45,8 @@ public class JarServiceProviderConfigurationEntry extends AbstractJarEntry {
     private final ServiceProviderConfiguration config;
     private String extension;
 
-    public JarServiceProviderConfigurationEntry(final ServiceProviderConfiguration config) {
-        super("META-INF/services/" + config.getService());
+    public JarServiceProviderConfigurationEntry(final long time, final ServiceProviderConfiguration config) {
+        super("META-INF/services/" + config.getService(), time);
         this.config = config;
     }
 

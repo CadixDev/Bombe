@@ -42,8 +42,8 @@ public class JarResourceEntry extends AbstractJarEntry {
     private final byte[] contents;
     private String extension;
 
-    public JarResourceEntry(final String name, final byte[] contents) {
-        super(name);
+    public JarResourceEntry(final String name, final long time, final byte[] contents) {
+        super(name, time);
         this.contents = contents;
     }
 

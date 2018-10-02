@@ -76,25 +76,27 @@ public final class Jars {
         return jarFile.stream().filter(entry -> !entry.isDirectory()).map(entry -> {
             final String name = entry.getName();
             try (final InputStream stream = jarFile.getInputStream(entry)) {
+                final long time = entry.getTime();
+
                 if (Objects.equals("META-INF/MANIFEST.MF", entry.getName())) {
-                    return new JarManifestEntry(new Manifest(stream));
+                    return new JarManifestEntry(time, new Manifest(stream));
                 }
                 else if (entry.getName().startsWith("META-INF/services/")) {
                     final String serviceName = entry.getName().substring("META-INF/services/".length());
 
                     final ServiceProviderConfiguration config = new ServiceProviderConfiguration(serviceName);
                     config.read(stream);
-                    return new JarServiceProviderConfigurationEntry(config);
+                    return new JarServiceProviderConfigurationEntry(time, config);
                 }
 
                 final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ByteStreams.copy(stream, baos);
 
                 if (entry.getName().endsWith(".class")) {
-                    return new JarClassEntry(name, baos.toByteArray());
+                    return new JarClassEntry(name, time, baos.toByteArray());
                 }
                 else {
-                    return new JarResourceEntry(name, baos.toByteArray());
+                    return new JarResourceEntry(name, time, baos.toByteArray());
                 }
             }
             catch (final IOException ignored) {

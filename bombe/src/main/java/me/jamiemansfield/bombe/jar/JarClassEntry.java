@@ -42,8 +42,8 @@ public class JarClassEntry extends AbstractJarEntry {
 
     private final byte[] contents;
 
-    public JarClassEntry(final String name, final byte[] contents) {
-        super(name);
+    public JarClassEntry(final String name, final long time, final byte[] contents) {
+        super(name, time);
         this.contents = contents;
     }
 

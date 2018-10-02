@@ -72,7 +72,7 @@ public final class JarEntryRemappingTransformerTests {
         obf.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, "a", null, "java/lang/Object", null);
 
         // Run it through the transformer
-        final JarClassEntry entry = TRANSFORMER.transform(new JarClassEntry("a.class", obf.toByteArray()));
+        final JarClassEntry entry = TRANSFORMER.transform(new JarClassEntry("a.class", 0, obf.toByteArray()));
         assertEquals("pkg/Demo.class", entry.getName());
 
         // Verify the contents
@@ -90,7 +90,7 @@ public final class JarEntryRemappingTransformerTests {
             obfManifest.getMainAttributes().putValue("Main-Class", "a");
         }
 
-        final JarManifestEntry manifestEntry = TRANSFORMER.transform(new JarManifestEntry(obfManifest));
+        final JarManifestEntry manifestEntry = TRANSFORMER.transform(new JarManifestEntry(0, obfManifest));
         final Manifest deobfManifest = manifestEntry.getManifest();
         assertEquals("pkg.Demo", deobfManifest.getMainAttributes().getValue("Main-Class"));
     }
@@ -102,7 +102,7 @@ public final class JarEntryRemappingTransformerTests {
                 Collections.singletonList("b")
         );
         final ServiceProviderConfiguration deobfConfig =
-                TRANSFORMER.transform(new JarServiceProviderConfigurationEntry(obfConfig)).getConfig();
+                TRANSFORMER.transform(new JarServiceProviderConfigurationEntry(0, obfConfig)).getConfig();
         assertEquals("pkg.Demo", deobfConfig.getService());
         assertEquals(1, deobfConfig.getProviders().size());
         assertTrue(deobfConfig.getProviders().contains("pkg.DemoTwo"), "Provider not present!");

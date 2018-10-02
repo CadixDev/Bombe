@@ -47,8 +47,8 @@ public class JarManifestEntry extends AbstractJarEntry {
 
     private final Manifest manifest;
 
-    public JarManifestEntry(final Manifest manifest) {
-        super(NAME);
+    public JarManifestEntry(final long time, final Manifest manifest) {
+        super(NAME, time);
         this.manifest = manifest;
     }
 

@@ -43,11 +43,13 @@ import java.util.jar.JarOutputStream;
 public abstract class AbstractJarEntry {
 
     protected final String name;
+    protected final long time;
     private String packageName;
     private String simpleName;
 
-    protected AbstractJarEntry(final String name) {
+    protected AbstractJarEntry(final String name, final long time) {
         this.name = name;
+        this.time = time;
     }
 
     /**
@@ -57,6 +59,15 @@ public abstract class AbstractJarEntry {
      */
     public final String getName() {
         return this.name;
+    }
+
+    /**
+     * Gets the time the jar entry was last modified.
+     *
+     * @return The time
+     */
+    public final long getTime() {
+        return this.time;
     }
 
     /**
@@ -108,7 +119,12 @@ public abstract class AbstractJarEntry {
      * @throws IOException If an I/O exception occurs
      */
     public final void write(final JarOutputStream jos) throws IOException {
-        jos.putNextEntry(new JarEntry(this.name));
+        // Create entry
+        final JarEntry entry = new JarEntry(this.name);
+        entry.setTime(this.time);
+
+        // Write entry
+        jos.putNextEntry(entry);
         jos.write(this.getContents());
         jos.closeEntry();
     }

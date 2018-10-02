@@ -30,17 +30,17 @@
 
 package me.jamiemansfield.bombe.jar;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests pertaining to the jar entry classes.
  */
 public final class JarEntryTests {
 
-    private static final AbstractJarEntry PACKAGED_ENTRY = new JarResourceEntry("pack/beep.boop", null);
-    private static final AbstractJarEntry ROOT_ENTRY = new JarResourceEntry("beep.boop", null);
+    private static final AbstractJarEntry PACKAGED_ENTRY = new JarResourceEntry("pack/beep.boop", 0, null);
+    private static final AbstractJarEntry ROOT_ENTRY = new JarResourceEntry("beep.boop", 0, null);
 
     @Test
     public void packageName() {

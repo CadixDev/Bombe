@@ -79,7 +79,7 @@ public class JarEntryRemappingTransformer implements JarEntryTransformer {
         // Create the jar entry
         final String originalName = entry.getName().substring(0, entry.getName().length() - ".class".length());
         final String name = this.remapper.map(originalName) + ".class";
-        return new JarClassEntry(name, writer.toByteArray());
+        return new JarClassEntry(name, entry.getTime(), writer.toByteArray());
     }
 
     @Override
@@ -112,7 +112,7 @@ public class JarEntryRemappingTransformer implements JarEntryTransformer {
 
         // Create the new entry
         final ServiceProviderConfiguration config = new ServiceProviderConfiguration(deobfServiceName, deobfProviders);
-        return new JarServiceProviderConfigurationEntry(config);
+        return new JarServiceProviderConfigurationEntry(entry.getTime(), config);
     }
 
 }
