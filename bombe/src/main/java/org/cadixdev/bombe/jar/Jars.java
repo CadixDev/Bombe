@@ -55,18 +55,6 @@ import java.util.stream.Stream;
 public final class Jars {
 
     /**
-     * Walks through the entries within the given file.
-     *
-     * @param jarPath The path to the jar file
-     * @return The jar entries
-     */
-    public static Stream<AbstractJarEntry> walk(final Path jarPath) throws IOException {
-        try (final JarFile jarFile = new JarFile(jarPath.toFile())) {
-            return walk(jarFile);
-        }
-    }
-
-    /**
      * Walks through the entries within the given {@link JarFile}.
      *
      * @param jarFile The jar file
