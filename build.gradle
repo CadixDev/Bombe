@@ -5,9 +5,9 @@ subprojects {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
 
-    group = 'me.jamiemansfield'
+    group = 'org.cadixdev'
     archivesBaseName = project.name.toLowerCase()
-    version = '0.2.0'
+    version = '0.3.0'
 
     repositories {
         mavenCentral()
@@ -18,6 +18,10 @@ subprojects {
         testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.2.0'
     }
 
+    test {
+        useJUnitPlatform()
+    }
+
     processResources {
         from 'LICENSE.txt'
     }
@@ -26,7 +30,6 @@ subprojects {
         options.encoding = 'UTF-8'
         options.charSet = 'UTF-8'
         options.links(
-                'https://google.github.io/guava/releases/22.0/api/docs/',
                 'https://docs.oracle.com/javase/8/docs/api/'
         )
     }
@@ -77,18 +80,18 @@ subprojects {
                         name = project.name
                         description = project.description
                         packaging = 'jar'
-                        url = 'https://www.jamiemansfield.me/projects/bombe'
-                        inceptionYear = 2018
+                        url = project.url
+                        inceptionYear = project.inceptionYear
 
                         scm {
-                            url = 'https://github.com/jamiemansfield/Bombe'
-                            connection = 'scm:git:https://github.com/jamiemansfield/Bombe.git'
-                            developerConnection = 'scm:git:git@github.com:jamiemansfield/Bombe.git'
+                            url = 'https://github.com/CadixDev/Bombe'
+                            connection = 'scm:git:https://github.com/CadixDev/Bombe.git'
+                            developerConnection = 'scm:git:git@github.com:CadixDev/Bombe.git'
                         }
 
                         issueManagement {
                             system = 'GitHub'
-                            url = 'https://github.com/jamiemansfield/Bombe/issues'
+                            url = 'https://github.com/CadixDev/Bombe/issues'
                         }
 
                         licenses {
