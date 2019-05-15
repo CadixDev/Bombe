@@ -1,4 +1,4 @@
 dependencies {
     compile project(':bombe')
-    compile 'org.ow2.asm:asm-commons:7.0'
+    compile 'org.ow2.asm:asm-commons:7.1'
 }
