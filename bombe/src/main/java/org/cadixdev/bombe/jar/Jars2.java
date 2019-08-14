@@ -61,6 +61,12 @@ import java.util.stream.Stream;
  */
 public final class Jars2 {
 
+    /**
+     * Walks through the entries within the given {@link FileSystem}.
+     *
+     * @param fs The jar file file system
+     * @return The jar entries
+     */
     public static Stream<AbstractJarEntry> walk(final FileSystem fs) throws IOException {
         final Path root = fs.getPath("/");
 
@@ -112,13 +118,19 @@ public final class Jars2 {
         }
     }
 
+    /**
+     * Transforms the entries within the given input {@link FileSystem} with the transformers,
+     * to the given output {@link Path}.
+     *
+     * @param input The input jar file system
+     * @param output The output jar path
+     * @param transformers The transformers
+     * @throws IOException If an I/O exception occurs
+     */
     public static void transform(final FileSystem input, final Path output, final JarEntryTransformer... transformers) throws IOException {
         final URI uri = URI.create("jar:" + output.toUri());
-        final Map<String, String> options = new HashMap<String, String>() {
-            {
-                this.put("create", "true");
-            }
-        };
+        final Map<String, String> options = new HashMap<>();
+        options.put("create", "true");
 
         try (final FileSystem fs = FileSystems.newFileSystem(uri, options)) {
             for (final AbstractJarEntry entry : walk(input)

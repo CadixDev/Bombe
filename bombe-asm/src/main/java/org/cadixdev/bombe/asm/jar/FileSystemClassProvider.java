@@ -30,11 +30,7 @@
 
 package org.cadixdev.bombe.asm.jar;
 
-import org.cadixdev.bombe.util.ByteStreams;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 
@@ -56,10 +52,8 @@ public class FileSystemClassProvider implements ClassProvider {
     public byte[] get(final String klass) {
         final String internalName = klass + ".class";
 
-        try (final InputStream in = Files.newInputStream(this.fs.getPath("/", internalName))) {
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ByteStreams.copy(in, baos);
-            return baos.toByteArray();
+        try {
+            return Files.readAllBytes(this.fs.getPath("/", internalName));
         }
         catch (final IOException ignored) {
             return null;
