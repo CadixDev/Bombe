@@ -28,32 +28,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.test.jar;
+package org.cadixdev.bombe.test.jar
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.cadixdev.bombe.jar.ServiceProviderConfiguration;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.io.InputStream;
+import org.cadixdev.bombe.jar.AbstractJarEntry
+import org.cadixdev.bombe.jar.JarResourceEntry
+import spock.lang.Specification
 
 /**
- * Unit tests pertaining to {@link ServiceProviderConfiguration}.
+ * Tests for Bombe's jar tooling.
  */
-public final class ServiceProviderConfigurationTests {
+class JarEntrySpec extends Specification {
 
-    @Test
-    public void readConfig() throws IOException {
-        final ServiceProviderConfiguration config = new ServiceProviderConfiguration("demo.Demo");
-        try (final InputStream is =
-                     ServiceProviderConfigurationTests.class.getResourceAsStream("/demo.Demo")) {
-            config.read(is);
-        }
-        assertEquals(2, config.getProviders().size());
-        assertTrue(config.getProviders().contains("demo.DemoImpl"), "Provider not present!");
-        assertTrue(config.getProviders().contains("demo.DemoAltImpl"), "Provider not present!");
+    private static final AbstractJarEntry PACKAGED_ENTRY = new JarResourceEntry("pack/beep.boop", 0, null)
+    private static final AbstractJarEntry ROOT_ENTRY = new JarResourceEntry("beep.boop", 0, null)
+
+    def "reads name correctly"(final AbstractJarEntry entry,
+                               final String packageName,
+                               final String simpleName,
+                               final String extension) {
+        expect:
+        entry.package == packageName
+        entry.simpleName == simpleName
+        entry.extension == extension
+
+        where:
+        entry          | packageName | simpleName | extension
+        PACKAGED_ENTRY | 'pack'      | 'beep'     | 'boop'
+        ROOT_ENTRY     | ''          | 'beep'     | 'boop'
     }
 
 }

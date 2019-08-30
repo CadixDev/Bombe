@@ -28,38 +28,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.test.jar;
+package org.cadixdev.bombe.test.jar
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.cadixdev.bombe.jar.ServiceProviderConfiguration
+import spock.lang.Specification
 
-import org.cadixdev.bombe.jar.AbstractJarEntry;
-import org.cadixdev.bombe.jar.JarResourceEntry;
-import org.junit.jupiter.api.Test;
+import java.nio.charset.StandardCharsets
 
 /**
- * Unit tests pertaining to the jar entry classes.
+ * Test for Bombe's ServiceProviderConfiguration.
  */
-public final class JarEntryTests {
+class ServiceProviderConfigurationSpec extends Specification {
 
-    private static final AbstractJarEntry PACKAGED_ENTRY = new JarResourceEntry("pack/beep.boop", 0, null);
-    private static final AbstractJarEntry ROOT_ENTRY = new JarResourceEntry("beep.boop", 0, null);
+    private static final String CONTENTS = '''
+demo.DemoImpl
+demo.DemoAltImpl
+'''
 
-    @Test
-    public void packageName() {
-        assertEquals("pack", PACKAGED_ENTRY.getPackage());
-        assertEquals("", ROOT_ENTRY.getPackage());
-    }
+    def "reads configuration"() {
+        given:
+        def bais = new ByteArrayInputStream(CONTENTS.getBytes(StandardCharsets.UTF_8))
+        def config = new ServiceProviderConfiguration('demo.Demo')
+        config.read(bais)
 
-    @Test
-    public void simpleName() {
-        assertEquals("beep", PACKAGED_ENTRY.getSimpleName());
-        assertEquals("beep", ROOT_ENTRY.getSimpleName());
-    }
-
-    @Test
-    public void extension() {
-        assertEquals("boop", PACKAGED_ENTRY.getExtension());
-        assertEquals("boop", ROOT_ENTRY.getExtension());
+        expect:
+        config.providers.size() == 2
+        config.providers.contains('demo.DemoImpl')
+        config.providers.contains('demo.DemoAltImpl')
     }
 
 }
