@@ -123,7 +123,7 @@ class TypeSpec extends Specification {
         Type.of(raw)
 
         then:
-        thrown(IllegalStateException.class)
+        thrown(IllegalStateException)
 
         where:
         raw                | _
@@ -136,7 +136,7 @@ class TypeSpec extends Specification {
         FieldType.of(raw)
 
         then:
-        thrown(IllegalStateException.class)
+        thrown(IllegalStateException)
 
         where:
         raw | _
