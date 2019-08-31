@@ -28,32 +28,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.test.jar;
+package org.cadixdev.bombe.test.jar
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.cadixdev.bombe.jar.ServiceProviderConfiguration
+import spock.lang.Specification
 
-import org.cadixdev.bombe.jar.ServiceProviderConfiguration;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.StandardCharsets
 
 /**
- * Unit tests pertaining to {@link ServiceProviderConfiguration}.
+ * Test for Bombe's ServiceProviderConfiguration.
  */
-public final class ServiceProviderConfigurationTests {
+class ServiceProviderConfigurationSpec extends Specification {
 
-    @Test
-    public void readConfig() throws IOException {
-        final ServiceProviderConfiguration config = new ServiceProviderConfiguration("demo.Demo");
-        try (final InputStream is =
-                     ServiceProviderConfigurationTests.class.getResourceAsStream("/demo.Demo")) {
-            config.read(is);
-        }
-        assertEquals(2, config.getProviders().size());
-        assertTrue(config.getProviders().contains("demo.DemoImpl"), "Provider not present!");
-        assertTrue(config.getProviders().contains("demo.DemoAltImpl"), "Provider not present!");
+    private static final String CONTENTS = '''
+demo.DemoImpl
+demo.DemoAltImpl
+'''
+
+    def "reads configuration"() {
+        given:
+        def bais = new ByteArrayInputStream(CONTENTS.getBytes(StandardCharsets.UTF_8))
+        def config = new ServiceProviderConfiguration('demo.Demo')
+        config.read(bais)
+
+        expect:
+        config.providers.size() == 2
+        config.providers.contains('demo.DemoImpl')
+        config.providers.contains('demo.DemoAltImpl')
     }
 
 }
