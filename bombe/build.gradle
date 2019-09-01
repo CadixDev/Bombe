@@ -1,2 +1,3 @@
 dependencies {
+    compile 'me.jamiemansfield:string:0.1.0'
 }
