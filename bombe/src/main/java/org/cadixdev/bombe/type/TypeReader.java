@@ -30,16 +30,16 @@
 
 package org.cadixdev.bombe.type;
 
-import org.cadixdev.bombe.util.AbstractReader;
+import me.jamiemansfield.string.StringReader;
 
 /**
- * An {@link AbstractReader} for reading {@link Type}s from their
+ * An {@link StringReader} for reading {@link Type}s from their
  * raw {@link String} representation.
  *
  * @author Jamie Mansfield
  * @since 0.2.0
  */
-public class TypeReader extends AbstractReader {
+public class TypeReader extends StringReader {
 
     public TypeReader(final String source) {
         super(source);
@@ -96,7 +96,7 @@ public class TypeReader extends AbstractReader {
     public ArrayType readArrayType() {
         int count = 0;
 
-        while (this.hasNext() && this.peek() == '[') {
+        while (this.available() && this.peek() == '[') {
             this.advance();
             count++;
         }
@@ -121,17 +121,17 @@ public class TypeReader extends AbstractReader {
      * @throws IllegalStateException If the descriptor is invalid
      */
     public ObjectType readObjectType() {
-        final int start = this.current;
+        final int start = this.index();
         this.advance();
 
-        while (this.hasNext() && this.peek() != ';') {
+        while (this.available() && this.peek() != ';') {
             this.advance();
         }
 
         if (this.peek() != ';') throw new IllegalStateException("Incomplete descriptor provided!");
         this.advance();
 
-        return new ObjectType(this.source.substring(start + 1, this.current - 1));
+        return new ObjectType(this.substring(start + 1, this.index() - 1));
     }
 
     /**

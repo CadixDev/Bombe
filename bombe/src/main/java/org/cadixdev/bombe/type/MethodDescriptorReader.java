@@ -30,13 +30,13 @@
 
 package org.cadixdev.bombe.type;
 
-import org.cadixdev.bombe.util.AbstractReader;
+import me.jamiemansfield.string.StringReader;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An {@link AbstractReader} for reading {@link MethodDescriptor}s
+ * An {@link StringReader} for reading {@link MethodDescriptor}s
  * from their raw {@link String} representation.
  *
  * @author Jamie Mansfield
@@ -60,7 +60,7 @@ public class MethodDescriptorReader extends TypeReader {
         if (this.peek() != '(') throw new IllegalStateException("Invalid descriptor provided!");
         this.advance();
 
-        while (this.hasNext() && this.peek() != ')') {
+        while (this.available() && this.peek() != ')') {
             params.add(this.readFieldType());
         }
 
