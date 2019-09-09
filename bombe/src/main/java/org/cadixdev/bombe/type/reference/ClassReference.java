@@ -30,6 +30,8 @@
 
 package org.cadixdev.bombe.type.reference;
 
+import org.cadixdev.bombe.type.FieldType;
+import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.ObjectType;
 import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
@@ -95,6 +97,38 @@ public abstract class ClassReference extends QualifiedReference {
     }
 
     /**
+     * Returns a reference to a field contained by this class.
+     *
+     * @param name The name of the field
+     * @param type The {@link FieldType type} of the field
+     * @return A reference to the field
+     */
+    public FieldReference getField(final String name, final FieldType type) {
+        return this.getField(new FieldSignature(name, type));
+    }
+
+    /**
+     * Returns a reference to a field contained by this class.
+     *
+     * @param name The name of the field
+     * @param type The type of the field
+     * @return A reference to the field
+     */
+    public FieldReference getField(final String name, final String type) {
+        return this.getField(name, FieldType.of(type));
+    }
+
+    /**
+     * Returns a reference to a field contained by this class.
+     *
+     * @param name The name of the field
+     * @return A reference to the field
+     */
+    public FieldReference getField(final String name) {
+        return this.getField(new FieldSignature(name));
+    }
+
+    /**
      * Returns a reference to a method contained by this class.
      *
      * @param signature The {@link MethodSignature signature} of the method
@@ -102,6 +136,28 @@ public abstract class ClassReference extends QualifiedReference {
      */
     public MethodReference getMethod(final MethodSignature signature) {
         return new MethodReference(this, signature);
+    }
+
+    /**
+     * Returns a reference to a method contained by this class.
+     *
+     * @param name The name of the method
+     * @param descriptor The {@link MethodDescriptor descriptor} of the method
+     * @return A reference to the method
+     */
+    public MethodReference getMethod(final String name, final MethodDescriptor descriptor) {
+        return this.getMethod(new MethodSignature(name, descriptor));
+    }
+
+    /**
+     * Returns a reference to a method contained by this class.
+     *
+     * @param name The name of the method
+     * @param descriptor The JVMS descriptor of the method
+     * @return A reference to the method
+     */
+    public MethodReference getMethod(final String name, final String descriptor) {
+        return this.getMethod(name, MethodDescriptor.of(descriptor));
     }
 
     @Override

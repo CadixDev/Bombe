@@ -56,4 +56,15 @@ public class TopLevelClassReference extends ClassReference {
         }
     }
 
+    /**
+     * Constructs a new reference to a top-level class.
+     *
+     * @param className The name of the class
+     * @throws IllegalArgumentException If the given type represents an inner
+     *     class
+     */
+    public TopLevelClassReference(final String className) {
+        this(new ObjectType(className));
+    }
+
 }
