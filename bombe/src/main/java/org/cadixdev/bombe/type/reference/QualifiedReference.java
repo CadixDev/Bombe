@@ -1,13 +1,11 @@
 package org.cadixdev.bombe.type.reference;
 
-import org.cadixdev.bombe.type.ObjectType;
-
 /**
  * Represents a unique, qualified path to a class, class member, or method
  * parameter.
  *
  * @author Max Roncace
- * @since 0.3.0
+ * @since 0.3.1
  */
 public abstract class QualifiedReference {
 
@@ -15,6 +13,15 @@ public abstract class QualifiedReference {
 
     public QualifiedReference(Type type) {
         this.type = type;
+    }
+
+    /**
+     * Returns the {@link Type} of this reference.
+     *
+     * @return The {@link Type} of this reference
+     */
+    public Type getType() {
+        return type;
     }
 
     public enum Type {
