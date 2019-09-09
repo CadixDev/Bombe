@@ -64,6 +64,24 @@ public abstract class MemberSignature {
         return this.name;
     }
 
+    /**
+     * Returns a JVMS-like identifier corresponding to this signature.
+     *
+     * <p>
+     *     For field signatures, this will take the form
+     *     {@code name(descriptor)}.
+     * </p>
+     *
+     * <p>
+     *     For method signatures, this will take the form
+     *     {@code name(params)ret_type} - in other terms, the name directly
+     *     concatenated with the JVMS descriptor.
+     * </p>
+     *
+     * @return A JVMS-like identifier
+     */
+    public abstract String toJvmsIdentifier();
+
     protected StringJoiner buildToString() {
         return new StringJoiner(", ", getClass().getSimpleName() + "{", "}")
                 .add("name=" + name);

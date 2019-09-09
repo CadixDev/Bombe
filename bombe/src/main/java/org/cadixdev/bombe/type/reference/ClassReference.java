@@ -4,6 +4,8 @@ import org.cadixdev.bombe.type.ObjectType;
 import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
+import java.util.Objects;
+
 /**
  * Represents a unique, qualified path to a class.
  *
@@ -69,6 +71,21 @@ public abstract class ClassReference extends QualifiedReference {
      */
     public MethodReference getMethod(MethodSignature signature) {
         return new MethodReference(this, signature);
+    }
+
+    @Override
+    public String toJvmsIdentifier() {
+        return classType.getClassName();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), classType);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof ClassReference && ((ClassReference) o).classType == classType;
     }
 
 }

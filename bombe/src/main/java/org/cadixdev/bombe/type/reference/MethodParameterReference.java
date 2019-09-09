@@ -1,5 +1,7 @@
 package org.cadixdev.bombe.type.reference;
 
+import java.util.Objects;
+
 /**
  * Represents a unique, qualified path to a parameter of a
  * {@link MethodReference method}.
@@ -46,6 +48,24 @@ public class MethodParameterReference extends QualifiedReference {
      */
     public int getParameterIndex() {
         return index;
+    }
+
+    @Override
+    public String toJvmsIdentifier() {
+        return getParentMethod().toJvmsIdentifier() + JVMS_COMPONENT_JOINER + index;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getClass(), super.hashCode(), parentMethod, index);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof MethodParameterReference
+                && super.equals(o)
+                && parentMethod.equals(((MethodParameterReference) o).parentMethod)
+                && index == ((MethodParameterReference) o).index;
     }
 
 }

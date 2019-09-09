@@ -2,10 +2,12 @@ package org.cadixdev.bombe.type.reference;
 
 import org.cadixdev.bombe.type.signature.MemberSignature;
 
+import java.util.Objects;
+
 /**
  * Represents a unique, qualified path to a {@link ClassReference class} member.
  *
- * @param <T> The {@link MemberSignature} type used by this reference
+ * @param <S> The {@link MemberSignature} type used by this reference
  *
  * @author Max Roncace
  * @since 0.3.1
@@ -44,8 +46,25 @@ public abstract class MemberReference<S extends MemberSignature> extends Qualifi
      *
      * @return The signature of this member
      */
-    public MemberSignature getSignature() {
+    public S getSignature() {
         return signature;
     }
 
+    @Override
+    public String toJvmsIdentifier() {
+        return owningClass.toJvmsIdentifier() + JVMS_COMPONENT_JOINER + signature.toJvmsIdentifier();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), owningClass, signature);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof MemberReference
+                && super.equals(o)
+                && owningClass.equals(((MemberReference) o).owningClass)
+                && signature.equals(((MemberReference) o).signature);
+    }
 }

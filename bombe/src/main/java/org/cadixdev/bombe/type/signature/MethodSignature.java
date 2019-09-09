@@ -101,6 +101,11 @@ public class MethodSignature extends MemberSignature {
     }
 
     @Override
+    public String toJvmsIdentifier() {
+        return this.name + this.descriptor.toString();
+    }
+
+    @Override
     protected StringJoiner buildToString() {
         return super.buildToString()
                 .add("descriptor=" + this.descriptor);
