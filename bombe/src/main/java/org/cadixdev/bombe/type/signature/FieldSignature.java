@@ -101,6 +101,11 @@ public class FieldSignature extends MemberSignature {
     }
 
     @Override
+    public String toJvmsIdentifier() {
+        return this.name + "(" + this.type.toString() + ")";
+    }
+
+    @Override
     protected StringJoiner buildToString() {
         return super.buildToString()
                 .add("type=" + this.type);
