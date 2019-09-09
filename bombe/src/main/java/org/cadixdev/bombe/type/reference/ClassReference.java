@@ -1,3 +1,33 @@
+/*
+ * Copyright (c) 2018, Jamie Mansfield <https://jamiemansfield.me/>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ *  Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ *  Neither the name of the copyright holder nor the names of its
+ *   contributors may be used to endorse or promote products derived from
+ *   this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package org.cadixdev.bombe.type.reference;
 
 import org.cadixdev.bombe.type.ObjectType;
@@ -27,7 +57,7 @@ public abstract class ClassReference extends QualifiedReference {
      * @param classType An {@link ObjectType} representing the type of the
      *     referenced class
      */
-    public ClassReference(Type type, ObjectType classType) {
+    public ClassReference(final Type type, final ObjectType classType) {
         super(type);
         this.classType = classType;
     }
@@ -38,7 +68,7 @@ public abstract class ClassReference extends QualifiedReference {
      * @return The type of class
      */
     public ObjectType getClassType() {
-        return classType;
+        return this.classType;
     }
 
     /**
@@ -47,7 +77,7 @@ public abstract class ClassReference extends QualifiedReference {
      * @param unqualifiedName The unqualified name of the inner class
      * @return A reference to the inner class
      */
-    public InnerClassReference getInnerClass(String unqualifiedName) {
+    public InnerClassReference getInnerClass(final String unqualifiedName) {
         return new InnerClassReference(
                 this,
                 new ObjectType(this.getClassType().getClassName() + INNER_CLASS_SEPARATOR_CHAR + unqualifiedName)
@@ -60,7 +90,7 @@ public abstract class ClassReference extends QualifiedReference {
      * @param signature The {@link FieldSignature signature} of the field
      * @return A reference to the field
      */
-    public FieldReference getField(FieldSignature signature) {
+    public FieldReference getField(final FieldSignature signature) {
         return new FieldReference(this, signature);
     }
 
@@ -70,28 +100,31 @@ public abstract class ClassReference extends QualifiedReference {
      * @param signature The {@link MethodSignature signature} of the method
      * @return A reference to the method
      */
-    public MethodReference getMethod(MethodSignature signature) {
+    public MethodReference getMethod(final MethodSignature signature) {
         return new MethodReference(this, signature);
     }
 
     @Override
     public String toJvmsIdentifier() {
-        return classType.getClassName();
+        return this.classType.getClassName();
     }
 
     @Override
     protected StringJoiner buildToString() {
-        return super.buildToString().add(";classType=" + classType.getClassName());
+        return super.buildToString().add(";classType=" + this.classType.getClassName());
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof ClassReference)) return false;
+        final ClassReference that = (ClassReference) obj;
+        return Objects.equals(this.classType, that.classType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), classType);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof ClassReference && ((ClassReference) o).classType == classType;
+        return Objects.hash(super.hashCode(), this.classType);
     }
 
 }
