@@ -1,6 +1,7 @@
 package org.cadixdev.bombe.type.reference;
 
 import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * Represents a unique, qualified path to a parameter of a
@@ -53,6 +54,13 @@ public class MethodParameterReference extends QualifiedReference {
     @Override
     public String toJvmsIdentifier() {
         return getParentMethod().toJvmsIdentifier() + JVMS_COMPONENT_JOINER + index;
+    }
+
+    @Override
+    public StringJoiner buildToString() {
+        return super.buildToString()
+                    .add(";parentMethod=" + parentMethod.toJvmsIdentifier())
+                    .add(";index=" + index);
     }
 
     @Override

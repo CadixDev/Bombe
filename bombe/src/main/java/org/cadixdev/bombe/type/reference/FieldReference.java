@@ -20,4 +20,5 @@ public class FieldReference extends MemberReference<FieldSignature> {
     public FieldReference(ClassReference owningClass, FieldSignature signature) {
         super(Type.FIELD, owningClass, signature);
     }
+
 }

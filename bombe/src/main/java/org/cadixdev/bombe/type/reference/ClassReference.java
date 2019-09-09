@@ -5,6 +5,7 @@ import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
 import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * Represents a unique, qualified path to a class.
@@ -76,6 +77,11 @@ public abstract class ClassReference extends QualifiedReference {
     @Override
     public String toJvmsIdentifier() {
         return classType.getClassName();
+    }
+
+    @Override
+    protected StringJoiner buildToString() {
+        return super.buildToString().add(";classType=" + classType.getClassName());
     }
 
     @Override

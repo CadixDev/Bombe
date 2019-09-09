@@ -1,6 +1,7 @@
 package org.cadixdev.bombe.type.reference;
 
 import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * Represents a unique, qualified path to a class, class member, or method
@@ -42,6 +43,10 @@ public abstract class QualifiedReference {
      */
     public abstract String toJvmsIdentifier();
 
+    protected StringJoiner buildToString() {
+        return new StringJoiner("{type=" + type.name());
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(getClass(), type);
@@ -50,6 +55,11 @@ public abstract class QualifiedReference {
     @Override
     public boolean equals(Object o) {
         return o instanceof QualifiedReference && type == ((QualifiedReference) o).type;
+    }
+
+    @Override
+    public String toString() {
+        return buildToString().add("}").toString();
     }
 
     public enum Type {

@@ -3,6 +3,7 @@ package org.cadixdev.bombe.type.reference;
 import org.cadixdev.bombe.type.signature.MemberSignature;
 
 import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * Represents a unique, qualified path to a {@link ClassReference class} member.
@@ -53,6 +54,13 @@ public abstract class MemberReference<S extends MemberSignature> extends Qualifi
     @Override
     public String toJvmsIdentifier() {
         return owningClass.toJvmsIdentifier() + JVMS_COMPONENT_JOINER + signature.toJvmsIdentifier();
+    }
+
+    @Override
+    protected StringJoiner buildToString() {
+        return super.buildToString()
+                    .add(";owningClass=" + owningClass.getClassType().getClassName())
+                    .add(";signature=" + signature.toJvmsIdentifier());
     }
 
     @Override
