@@ -28,68 +28,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.type.signature;
+package org.cadixdev.bombe.type.reference;
 
-import java.util.StringJoiner;
+import org.cadixdev.bombe.type.ObjectType;
 
 /**
- * All members within Java have a unique signature that they can be identified with,
- * classes that inherit from this class are a representation of those unique signatures.
+ * Represents a unique, qualified path to a top-level
+ * {@link ClassReference class}.
  *
- * @see FieldSignature
- * @see MethodSignature
- *
- * @author Jamie Mansfield
- * @since 0.1.0
+ * @author Max Roncace
+ * @since 0.3.1
  */
-public abstract class MemberSignature {
-
-    protected final String name;
+public class TopLevelClassReference extends ClassReference {
 
     /**
-     * Creates a member signature, with the given name.
+     * Constructs a new reference to a top-level class.
      *
-     * @param name The name of the member
+     * @param classType The type of the class
+     * @throws IllegalArgumentException If the given type represents an inner
+     *     class
      */
-    protected MemberSignature(final String name) {
-        this.name = name;
-    }
+    public TopLevelClassReference(final ObjectType classType) {
+        super(Type.TOP_LEVEL_CLASS, classType);
 
-    /**
-     * Gets the name of the member.
-     *
-     * @return The name
-     */
-    public String getName() {
-        return this.name;
-    }
-
-    /**
-     * Returns a JVMS-like identifier corresponding to this signature.
-     *
-     * <p>
-     *     For field signatures, this will take the form
-     *     {@code name(descriptor)}.
-     * </p>
-     *
-     * <p>
-     *     For method signatures, this will take the form
-     *     {@code name(params)ret_type} - in other terms, the name directly
-     *     concatenated with the JVMS descriptor.
-     * </p>
-     *
-     * @return A JVMS-like identifier
-     */
-    public abstract String toJvmsIdentifier();
-
-    protected StringJoiner buildToString() {
-        return new StringJoiner(", ", getClass().getSimpleName() + "{", "}")
-                .add("name=" + name);
-    }
-
-    @Override
-    public final String toString() {
-        return this.buildToString().toString();
+        if (classType.getClassName().indexOf(INNER_CLASS_SEPARATOR_CHAR) >= 0) {
+            throw new IllegalArgumentException("Cannot create top-level class reference from inner class identifier");
+        }
     }
 
 }
