@@ -28,68 +28,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.type.signature;
+package org.cadixdev.bombe.type.reference;
 
-import java.util.StringJoiner;
+import org.cadixdev.bombe.type.signature.MethodSignature;
 
 /**
- * All members within Java have a unique signature that they can be identified with,
- * classes that inherit from this class are a representation of those unique signatures.
+ * Represents a unique, qualified path to a method of a
+ * {@link ClassReference class}.
  *
- * @see FieldSignature
- * @see MethodSignature
- *
- * @author Jamie Mansfield
- * @since 0.1.0
+ * @author Max Roncace
+ * @since 0.3.1
  */
-public abstract class MemberSignature {
-
-    protected final String name;
+public class MethodReference extends MemberReference<MethodSignature> {
 
     /**
-     * Creates a member signature, with the given name.
+     * Constructs a new reference to a class method.
      *
-     * @param name The name of the member
+     * @param owningClass The class containing the method
+     * @param signature The signature of the method
      */
-    protected MemberSignature(final String name) {
-        this.name = name;
+    public MethodReference(final ClassReference owningClass, final MethodSignature signature) {
+        super(Type.METHOD, owningClass, signature);
     }
 
     /**
-     * Gets the name of the member.
+     * Returns a reference to the parameter of this method with the given index.
      *
-     * @return The name
+     * @param index The index of the parameter
+     * @return A refernce to the parameter
+     * @throws IllegalArgumentException If the parameter index is out-of-bounds
      */
-    public String getName() {
-        return this.name;
-    }
-
-    /**
-     * Returns a JVMS-like identifier corresponding to this signature.
-     *
-     * <p>
-     *     For field signatures, this will take the form
-     *     {@code name(descriptor)}.
-     * </p>
-     *
-     * <p>
-     *     For method signatures, this will take the form
-     *     {@code name(params)ret_type} - in other terms, the name directly
-     *     concatenated with the JVMS descriptor.
-     * </p>
-     *
-     * @return A JVMS-like identifier
-     */
-    public abstract String toJvmsIdentifier();
-
-    protected StringJoiner buildToString() {
-        return new StringJoiner(", ", getClass().getSimpleName() + "{", "}")
-                .add("name=" + name);
-    }
-
-    @Override
-    public final String toString() {
-        return this.buildToString().toString();
+    public MethodParameterReference getParameter(final int index) {
+        return new MethodParameterReference(this, index);
     }
 
 }
