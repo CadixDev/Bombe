@@ -35,21 +35,21 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * A cascading {@link InheritanceProvider} allows for class information to be
+ * A composite {@link InheritanceProvider} allows for class information to be
  * pooled from multiple sources.
  *
  * @author Jamie Mansfield
  * @since 0.1.0
  */
-public class CascadingInheritanceProvider implements InheritanceProvider {
+public class CompositeInheritanceProvider implements InheritanceProvider {
 
     private final ArrayList<InheritanceProvider> providers;
 
-    public CascadingInheritanceProvider(final List<InheritanceProvider> providers) {
+    public CompositeInheritanceProvider(final List<InheritanceProvider> providers) {
         this.providers = new ArrayList<>(providers);
     }
 
-    public CascadingInheritanceProvider() {
+    public CompositeInheritanceProvider() {
         this.providers = new ArrayList<>();
     }
 
@@ -60,7 +60,7 @@ public class CascadingInheritanceProvider implements InheritanceProvider {
      * @param provider The inheritance provider
      * @return {@code this}, for chaining
      */
-    public CascadingInheritanceProvider install(final InheritanceProvider provider) {
+    public CompositeInheritanceProvider install(final InheritanceProvider provider) {
         this.providers.add(provider);
         return this;
     }
