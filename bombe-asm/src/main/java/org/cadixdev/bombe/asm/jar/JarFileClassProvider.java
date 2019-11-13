@@ -30,7 +30,7 @@
 
 package org.cadixdev.bombe.asm.jar;
 
-import org.cadixdev.bombe.util.ByteStreams;
+import org.cadixdev.bombe.jar.util.ByteStreams;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

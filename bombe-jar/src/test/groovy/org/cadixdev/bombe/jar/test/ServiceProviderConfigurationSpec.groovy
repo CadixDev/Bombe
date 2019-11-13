@@ -28,40 +28,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.asm.jar;
+package org.cadixdev.bombe.jar.test
 
-import org.cadixdev.bombe.jar.util.ByteStreams;
+import org.cadixdev.bombe.jar.ServiceProviderConfiguration
+import spock.lang.Specification
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.StandardCharsets
 
 /**
- * An implementation of {@link ClassProvider} backed by a {@link ClassLoader}.
- *
- * @author Jamie Mansfield
- * @since 0.3.0
+ * Test for Bombe's ServiceProviderConfiguration.
  */
-public class ClassLoaderClassProvider implements ClassProvider {
+class ServiceProviderConfigurationSpec extends Specification {
 
-    private final ClassLoader loader;
+    private static final String CONTENTS = '''
+demo.DemoImpl
+demo.DemoAltImpl
+'''
 
-    public ClassLoaderClassProvider(final ClassLoader loader) {
-        this.loader = loader;
-    }
+    def "reads configuration"() {
+        given:
+        def bais = new ByteArrayInputStream(CONTENTS.getBytes(StandardCharsets.UTF_8))
+        def config = new ServiceProviderConfiguration('demo.Demo')
+        config.read(bais)
 
-    @Override
-    public byte[] get(final String klass) {
-        final String internalName = klass + ".class";
-
-        try (final InputStream in = this.loader.getResourceAsStream(internalName)) {
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ByteStreams.copy(in, baos);
-            return baos.toByteArray();
-        }
-        catch (final IOException ignored) {
-            return null;
-        }
+        expect:
+        config.providers.size() == 2
+        config.providers.contains('demo.DemoImpl')
+        config.providers.contains('demo.DemoAltImpl')
     }
 
 }

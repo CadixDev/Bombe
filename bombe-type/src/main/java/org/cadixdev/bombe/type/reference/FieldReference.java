@@ -28,40 +28,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.asm.jar;
+package org.cadixdev.bombe.type.reference;
 
-import org.cadixdev.bombe.jar.util.ByteStreams;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import org.cadixdev.bombe.type.signature.FieldSignature;
 
 /**
- * An implementation of {@link ClassProvider} backed by a {@link ClassLoader}.
+ * Represents a unique, qualified path to a field of a
+ * {@link ClassReference class}.
  *
- * @author Jamie Mansfield
- * @since 0.3.0
+ * @author Max Roncace
+ * @since 0.3.1
  */
-public class ClassLoaderClassProvider implements ClassProvider {
+public class FieldReference extends MemberReference<FieldSignature> {
 
-    private final ClassLoader loader;
-
-    public ClassLoaderClassProvider(final ClassLoader loader) {
-        this.loader = loader;
-    }
-
-    @Override
-    public byte[] get(final String klass) {
-        final String internalName = klass + ".class";
-
-        try (final InputStream in = this.loader.getResourceAsStream(internalName)) {
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ByteStreams.copy(in, baos);
-            return baos.toByteArray();
-        }
-        catch (final IOException ignored) {
-            return null;
-        }
+    /**
+     * Constructs a new reference to a class field.
+     *
+     * @param owningClass The class containing the field
+     * @param signature The signature of the field
+     */
+    public FieldReference(final ClassReference owningClass, final FieldSignature signature) {
+        super(QualifiedReference.Type.FIELD, owningClass, signature);
     }
 
 }

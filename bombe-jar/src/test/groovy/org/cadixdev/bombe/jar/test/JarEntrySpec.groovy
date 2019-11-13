@@ -28,40 +28,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.asm.jar;
+package org.cadixdev.bombe.jar.test
 
-import org.cadixdev.bombe.jar.util.ByteStreams;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import org.cadixdev.bombe.jar.AbstractJarEntry
+import org.cadixdev.bombe.jar.JarResourceEntry
+import spock.lang.Specification
 
 /**
- * An implementation of {@link ClassProvider} backed by a {@link ClassLoader}.
- *
- * @author Jamie Mansfield
- * @since 0.3.0
+ * Tests for Bombe's jar tooling.
  */
-public class ClassLoaderClassProvider implements ClassProvider {
+class JarEntrySpec extends Specification {
 
-    private final ClassLoader loader;
+    private static final AbstractJarEntry PACKAGED_ENTRY = new JarResourceEntry("pack/beep.boop", 0, null)
+    private static final AbstractJarEntry ROOT_ENTRY = new JarResourceEntry("beep.boop", 0, null)
 
-    public ClassLoaderClassProvider(final ClassLoader loader) {
-        this.loader = loader;
-    }
+    def "reads name correctly"(final AbstractJarEntry entry,
+                               final String packageName,
+                               final String simpleName,
+                               final String extension) {
+        expect:
+        entry.package == packageName
+        entry.simpleName == simpleName
+        entry.extension == extension
 
-    @Override
-    public byte[] get(final String klass) {
-        final String internalName = klass + ".class";
-
-        try (final InputStream in = this.loader.getResourceAsStream(internalName)) {
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ByteStreams.copy(in, baos);
-            return baos.toByteArray();
-        }
-        catch (final IOException ignored) {
-            return null;
-        }
+        where:
+        entry          | packageName | simpleName | extension
+        PACKAGED_ENTRY | 'pack'      | 'beep'     | 'boop'
+        ROOT_ENTRY     | ''          | 'beep'     | 'boop'
     }
 
 }

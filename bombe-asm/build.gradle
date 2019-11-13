@@ -1,4 +1,5 @@
 dependencies {
-    compile project(':bombe')
+    compile project(':bombe-analysis')
+    compile project(':bombe-jar')
     compile 'org.ow2.asm:asm-commons:7.1'
 }
