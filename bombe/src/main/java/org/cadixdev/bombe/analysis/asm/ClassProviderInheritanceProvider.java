@@ -28,46 +28,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.type;
+package org.cadixdev.bombe.analysis.asm;
 
-import me.jamiemansfield.string.StringReader;
+import org.cadixdev.bombe.analysis.InheritanceProvider;
+import org.cadixdev.bombe.jar.ClassProvider;
+import org.objectweb.asm.ClassReader;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
 /**
- * An {@link StringReader} for reading {@link MethodDescriptor}s
- * from their raw {@link String} representation.
+ * An implementation of {@link InheritanceProvider} that retrieves all of
+ * its information from a {@link ClassProvider}.
  *
  * @author Jamie Mansfield
- * @since 0.2.0
+ * @since 0.3.0
  */
-public class MethodDescriptorReader extends TypeReader {
+public class ClassProviderInheritanceProvider implements InheritanceProvider {
 
-    public MethodDescriptorReader(final String descriptor) {
-        super(descriptor);
+    private final ClassProvider provider;
+
+    public ClassProviderInheritanceProvider(final ClassProvider provider) {
+        this.provider = provider;
     }
 
-    /**
-     * Reads the next {@link MethodDescriptor} from source.
-     *
-     * @return The type
-     * @throws IllegalStateException If the descriptor is invalid
-     */
-    public MethodDescriptor read() {
-        final List<FieldType> params = new ArrayList<>();
+    @Override
+    public Optional<ClassInfo> provide(final String klass) {
+        final byte[] classBytes = this.provider.get(klass);
+        if (classBytes == null) return Optional.empty();
 
-        if (this.peek() != '(') throw new IllegalStateException("Invalid descriptor provided!");
-        this.advance();
-
-        while (this.available() && this.peek() != ')') {
-            params.add(this.readFieldType());
-        }
-
-        if (this.peek() != ')') throw new IllegalStateException("Invalid descriptor provided!");
-        this.advance();
-
-        return new MethodDescriptor(params, this.readType());
+        final ClassReader reader = new ClassReader(classBytes);
+        final InheritanceClassInfoVisitor classInfoVisitor = new InheritanceClassInfoVisitor();
+        reader.accept(classInfoVisitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+        return Optional.of(classInfoVisitor.create());
     }
 
 }

@@ -28,46 +28,59 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.type;
-
-import me.jamiemansfield.string.StringReader;
+package org.cadixdev.bombe.analysis;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * An {@link StringReader} for reading {@link MethodDescriptor}s
- * from their raw {@link String} representation.
+ * A composite {@link InheritanceProvider} allows for class information to be
+ * pooled from multiple sources.
  *
  * @author Jamie Mansfield
- * @since 0.2.0
+ * @since 0.1.0
  */
-public class MethodDescriptorReader extends TypeReader {
+public class CompositeInheritanceProvider implements InheritanceProvider {
 
-    public MethodDescriptorReader(final String descriptor) {
-        super(descriptor);
+    private final ArrayList<InheritanceProvider> providers;
+
+    public CompositeInheritanceProvider(final List<InheritanceProvider> providers) {
+        this.providers = new ArrayList<>(providers);
+    }
+
+    public CompositeInheritanceProvider() {
+        this.providers = new ArrayList<>();
     }
 
     /**
-     * Reads the next {@link MethodDescriptor} from source.
+     * Adds an {@link InheritanceProvider} that can be used for obtaining class
+     * information.
      *
-     * @return The type
-     * @throws IllegalStateException If the descriptor is invalid
+     * @param provider The inheritance provider
+     * @return {@code this}, for chaining
      */
-    public MethodDescriptor read() {
-        final List<FieldType> params = new ArrayList<>();
+    public CompositeInheritanceProvider install(final InheritanceProvider provider) {
+        this.providers.add(provider);
+        return this;
+    }
 
-        if (this.peek() != '(') throw new IllegalStateException("Invalid descriptor provided!");
-        this.advance();
-
-        while (this.available() && this.peek() != ')') {
-            params.add(this.readFieldType());
+    @Override
+    public Optional<ClassInfo> provide(final String klass) {
+        for (final InheritanceProvider provider : this.providers) {
+            final Optional<ClassInfo> info = provider.provide(klass);
+            if (info.isPresent()) return info;
         }
+        return Optional.empty();
+    }
 
-        if (this.peek() != ')') throw new IllegalStateException("Invalid descriptor provided!");
-        this.advance();
-
-        return new MethodDescriptor(params, this.readType());
+    @Override
+    public Optional<ClassInfo> provide(String klass, Object context) {
+        for (final InheritanceProvider provider : this.providers) {
+            final Optional<ClassInfo> info = provider.provide(klass, context);
+            if (info.isPresent()) return info;
+        }
+        return Optional.empty();
     }
 
 }

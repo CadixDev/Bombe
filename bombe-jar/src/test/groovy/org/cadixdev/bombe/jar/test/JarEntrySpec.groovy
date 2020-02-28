@@ -28,46 +28,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.type;
+package org.cadixdev.bombe.jar.test
 
-import me.jamiemansfield.string.StringReader;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.cadixdev.bombe.jar.AbstractJarEntry
+import org.cadixdev.bombe.jar.JarResourceEntry
+import spock.lang.Specification
 
 /**
- * An {@link StringReader} for reading {@link MethodDescriptor}s
- * from their raw {@link String} representation.
- *
- * @author Jamie Mansfield
- * @since 0.2.0
+ * Tests for Bombe's jar tooling.
  */
-public class MethodDescriptorReader extends TypeReader {
+class JarEntrySpec extends Specification {
 
-    public MethodDescriptorReader(final String descriptor) {
-        super(descriptor);
-    }
+    private static final AbstractJarEntry PACKAGED_ENTRY = new JarResourceEntry("pack/beep.boop", 0, null)
+    private static final AbstractJarEntry ROOT_ENTRY = new JarResourceEntry("beep.boop", 0, null)
 
-    /**
-     * Reads the next {@link MethodDescriptor} from source.
-     *
-     * @return The type
-     * @throws IllegalStateException If the descriptor is invalid
-     */
-    public MethodDescriptor read() {
-        final List<FieldType> params = new ArrayList<>();
+    def "reads name correctly"(final AbstractJarEntry entry,
+                               final String packageName,
+                               final String simpleName,
+                               final String extension) {
+        expect:
+        entry.package == packageName
+        entry.simpleName == simpleName
+        entry.extension == extension
 
-        if (this.peek() != '(') throw new IllegalStateException("Invalid descriptor provided!");
-        this.advance();
-
-        while (this.available() && this.peek() != ')') {
-            params.add(this.readFieldType());
-        }
-
-        if (this.peek() != ')') throw new IllegalStateException("Invalid descriptor provided!");
-        this.advance();
-
-        return new MethodDescriptor(params, this.readType());
+        where:
+        entry          | packageName | simpleName | extension
+        PACKAGED_ENTRY | 'pack'      | 'beep'     | 'boop'
+        ROOT_ENTRY     | ''          | 'beep'     | 'boop'
     }
 
 }

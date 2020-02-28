@@ -28,46 +28,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.type;
+package org.cadixdev.bombe.jar;
 
-import me.jamiemansfield.string.StringReader;
+import org.cadixdev.bombe.util.ByteStreams;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
- * An {@link StringReader} for reading {@link MethodDescriptor}s
- * from their raw {@link String} representation.
+ * An implementation of {@link ClassProvider} backed by a {@link JarFile}.
  *
  * @author Jamie Mansfield
- * @since 0.2.0
+ * @since 0.3.0
  */
-public class MethodDescriptorReader extends TypeReader {
+public class JarFileClassProvider implements ClassProvider {
 
-    public MethodDescriptorReader(final String descriptor) {
-        super(descriptor);
+    private final JarFile jar;
+
+    public JarFileClassProvider(final JarFile jar) {
+        this.jar = jar;
     }
 
-    /**
-     * Reads the next {@link MethodDescriptor} from source.
-     *
-     * @return The type
-     * @throws IllegalStateException If the descriptor is invalid
-     */
-    public MethodDescriptor read() {
-        final List<FieldType> params = new ArrayList<>();
+    @Override
+    public byte[] get(final String klass) {
+        final String internalName = klass + ".class";
 
-        if (this.peek() != '(') throw new IllegalStateException("Invalid descriptor provided!");
-        this.advance();
+        final JarEntry entry = this.jar.getJarEntry(internalName);
+        if (entry == null) return null;
 
-        while (this.available() && this.peek() != ')') {
-            params.add(this.readFieldType());
+        try (final InputStream in = this.jar.getInputStream(entry)) {
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ByteStreams.copy(in, baos);
+            return baos.toByteArray();
         }
-
-        if (this.peek() != ')') throw new IllegalStateException("Invalid descriptor provided!");
-        this.advance();
-
-        return new MethodDescriptor(params, this.readType());
+        catch (final IOException ignored) {
+            return null;
+        }
     }
 
 }

@@ -28,46 +28,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.type;
+package org.cadixdev.bombe.jar.test
 
-import me.jamiemansfield.string.StringReader;
+import org.cadixdev.bombe.jar.ServiceProviderConfiguration
+import spock.lang.Specification
 
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.charset.StandardCharsets
 
 /**
- * An {@link StringReader} for reading {@link MethodDescriptor}s
- * from their raw {@link String} representation.
- *
- * @author Jamie Mansfield
- * @since 0.2.0
+ * Test for Bombe's ServiceProviderConfiguration.
  */
-public class MethodDescriptorReader extends TypeReader {
+class ServiceProviderConfigurationSpec extends Specification {
 
-    public MethodDescriptorReader(final String descriptor) {
-        super(descriptor);
-    }
+    private static final String CONTENTS = '''
+demo.DemoImpl
+demo.DemoAltImpl
+'''
 
-    /**
-     * Reads the next {@link MethodDescriptor} from source.
-     *
-     * @return The type
-     * @throws IllegalStateException If the descriptor is invalid
-     */
-    public MethodDescriptor read() {
-        final List<FieldType> params = new ArrayList<>();
+    def "reads configuration"() {
+        given:
+        def bais = new ByteArrayInputStream(CONTENTS.getBytes(StandardCharsets.UTF_8))
+        def config = new ServiceProviderConfiguration('demo.Demo')
+        config.read(bais)
 
-        if (this.peek() != '(') throw new IllegalStateException("Invalid descriptor provided!");
-        this.advance();
-
-        while (this.available() && this.peek() != ')') {
-            params.add(this.readFieldType());
-        }
-
-        if (this.peek() != ')') throw new IllegalStateException("Invalid descriptor provided!");
-        this.advance();
-
-        return new MethodDescriptor(params, this.readType());
+        expect:
+        config.providers.size() == 2
+        config.providers.contains('demo.DemoImpl')
+        config.providers.contains('demo.DemoAltImpl')
     }
 
 }
