@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.test.jar
+package org.cadixdev.bombe.jar.test
 
 import org.cadixdev.bombe.jar.ServiceProviderConfiguration
 import spock.lang.Specification
