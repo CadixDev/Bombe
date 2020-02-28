@@ -28,45 +28,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.asm.jar;
+package org.cadixdev.bombe.analysis.asm;
 
-import org.cadixdev.bombe.util.ByteStreams;
+import org.cadixdev.bombe.analysis.InheritanceProvider;
+import org.cadixdev.bombe.jar.ClassProvider;
+import org.objectweb.asm.ClassReader;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.Optional;
 
 /**
- * An implementation of {@link ClassProvider} backed by a {@link JarFile}.
+ * An implementation of {@link InheritanceProvider} that retrieves all of
+ * its information from a {@link ClassProvider}.
  *
  * @author Jamie Mansfield
  * @since 0.3.0
  */
-public class JarFileClassProvider implements ClassProvider {
+public class ClassProviderInheritanceProvider implements InheritanceProvider {
 
-    private final JarFile jar;
+    private final ClassProvider provider;
 
-    public JarFileClassProvider(final JarFile jar) {
-        this.jar = jar;
+    public ClassProviderInheritanceProvider(final ClassProvider provider) {
+        this.provider = provider;
     }
 
     @Override
-    public byte[] get(final String klass) {
-        final String internalName = klass + ".class";
+    public Optional<ClassInfo> provide(final String klass) {
+        final byte[] classBytes = this.provider.get(klass);
+        if (classBytes == null) return Optional.empty();
 
-        final JarEntry entry = this.jar.getJarEntry(internalName);
-        if (entry == null) return null;
-
-        try (final InputStream in = this.jar.getInputStream(entry)) {
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ByteStreams.copy(in, baos);
-            return baos.toByteArray();
-        }
-        catch (final IOException ignored) {
-            return null;
-        }
+        final ClassReader reader = new ClassReader(classBytes);
+        final InheritanceClassInfoVisitor classInfoVisitor = new InheritanceClassInfoVisitor();
+        reader.accept(classInfoVisitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+        return Optional.of(classInfoVisitor.create());
     }
 
 }

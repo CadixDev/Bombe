@@ -1,3 +1,5 @@
 dependencies {
-    compile 'me.jamiemansfield:string:0.1.0'
+    compile "me.jamiemansfield:string:$stringVersion"
+    compileOnly "org.ow2.asm:asm-commons:$asmVersion"
+    testCompile "org.ow2.asm:asm-commons:$asmVersion"
 }

@@ -28,38 +28,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.asm.analysis;
+package org.cadixdev.bombe.jar;
 
-import org.cadixdev.bombe.analysis.InheritanceProvider;
-import org.cadixdev.bombe.asm.jar.ClassProvider;
-import org.objectweb.asm.ClassReader;
+import org.cadixdev.bombe.util.ByteStreams;
 
-import java.util.Optional;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
- * An implementation of {@link InheritanceProvider} that retrieves all of
- * its information from a {@link ClassProvider}.
+ * An implementation of {@link ClassProvider} backed by a {@link ClassLoader}.
  *
  * @author Jamie Mansfield
  * @since 0.3.0
  */
-public class ClassProviderInheritanceProvider implements InheritanceProvider {
+public class ClassLoaderClassProvider implements ClassProvider {
 
-    private final ClassProvider provider;
+    private final ClassLoader loader;
 
-    public ClassProviderInheritanceProvider(final ClassProvider provider) {
-        this.provider = provider;
+    public ClassLoaderClassProvider(final ClassLoader loader) {
+        this.loader = loader;
     }
 
     @Override
-    public Optional<ClassInfo> provide(final String klass) {
-        final byte[] classBytes = this.provider.get(klass);
-        if (classBytes == null) return Optional.empty();
+    public byte[] get(final String klass) {
+        final String internalName = klass + ".class";
 
-        final ClassReader reader = new ClassReader(classBytes);
-        final InheritanceClassInfoVisitor classInfoVisitor = new InheritanceClassInfoVisitor();
-        reader.accept(classInfoVisitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
-        return Optional.of(classInfoVisitor.create());
+        try (final InputStream in = this.loader.getResourceAsStream(internalName)) {
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ByteStreams.copy(in, baos);
+            return baos.toByteArray();
+        }
+        catch (final IOException ignored) {
+            return null;
+        }
     }
 
 }

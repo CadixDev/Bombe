@@ -28,33 +28,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.asm.jar;
+package org.cadixdev.bombe.jar;
 
 import org.cadixdev.bombe.util.ByteStreams;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
- * An implementation of {@link ClassProvider} backed by a {@link ClassLoader}.
+ * An implementation of {@link ClassProvider} backed by a {@link JarFile}.
  *
  * @author Jamie Mansfield
  * @since 0.3.0
  */
-public class ClassLoaderClassProvider implements ClassProvider {
+public class JarFileClassProvider implements ClassProvider {
 
-    private final ClassLoader loader;
+    private final JarFile jar;
 
-    public ClassLoaderClassProvider(final ClassLoader loader) {
-        this.loader = loader;
+    public JarFileClassProvider(final JarFile jar) {
+        this.jar = jar;
     }
 
     @Override
     public byte[] get(final String klass) {
         final String internalName = klass + ".class";
 
-        try (final InputStream in = this.loader.getResourceAsStream(internalName)) {
+        final JarEntry entry = this.jar.getJarEntry(internalName);
+        if (entry == null) return null;
+
+        try (final InputStream in = this.jar.getInputStream(entry)) {
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ByteStreams.copy(in, baos);
             return baos.toByteArray();

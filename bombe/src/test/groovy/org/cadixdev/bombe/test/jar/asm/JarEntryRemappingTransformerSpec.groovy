@@ -28,9 +28,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.asm.test
+package org.cadixdev.bombe.test.jar.asm
 
-import org.cadixdev.bombe.asm.jar.JarEntryRemappingTransformer
+import org.cadixdev.bombe.jar.asm.JarEntryRemappingTransformer
 import org.cadixdev.bombe.jar.JarClassEntry
 import org.cadixdev.bombe.jar.JarManifestEntry
 import org.cadixdev.bombe.jar.JarServiceProviderConfigurationEntry
