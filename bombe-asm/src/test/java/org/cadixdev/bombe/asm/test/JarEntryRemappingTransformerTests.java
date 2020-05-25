@@ -83,7 +83,7 @@ public final class JarEntryRemappingTransformerTests {
     }
 
     @Test
-    public void remapsMainClass() throws IOException {
+    public void remapsMainClass() {
         final Manifest obfManifest = new Manifest();
         {
             obfManifest.getMainAttributes().putValue("Manifest-Version", "1.0");
@@ -93,6 +93,16 @@ public final class JarEntryRemappingTransformerTests {
         final JarManifestEntry manifestEntry = TRANSFORMER.transform(new JarManifestEntry(0, obfManifest));
         final Manifest deobfManifest = manifestEntry.getManifest();
         assertEquals("pkg.Demo", deobfManifest.getMainAttributes().getValue("Main-Class"));
+    }
+
+    @Test
+    public void remapsSimpleManifest() {
+        final Manifest obfManifest = new Manifest();
+        {
+            obfManifest.getMainAttributes().putValue("Manifest-Version", "1.0");
+        }
+
+        TRANSFORMER.transform(new JarManifestEntry(0, obfManifest));
     }
 
     @Test
