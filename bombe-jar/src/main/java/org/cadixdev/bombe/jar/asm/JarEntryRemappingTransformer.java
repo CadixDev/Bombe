@@ -43,6 +43,7 @@ import org.objectweb.asm.commons.Remapper;
 
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.jar.Attributes;
 import java.util.stream.Collectors;
 
 /**
@@ -84,14 +85,17 @@ public class JarEntryRemappingTransformer implements JarEntryTransformer {
 
     @Override
     public JarManifestEntry transform(final JarManifestEntry entry) {
-        // Remap the Main-Class attribute
-        final String mainClassObf = entry.getManifest().getMainAttributes().getValue("Main-Class")
-                .replace('.', '/');
-        final String mainClassDeobf = this.remapper.map(mainClassObf)
-                .replace('/', '.');
+        // Remap the Main-Class attribute, if present
+        if (entry.getManifest().getMainAttributes().containsKey(new Attributes.Name("Main-Class"))) {
+            final String mainClassObf = entry.getManifest().getMainAttributes().getValue("Main-Class")
+                    .replace('.', '/');
+            final String mainClassDeobf = this.remapper.map(mainClassObf)
+                    .replace('/', '.');
 
-        // Since Manifest is mutable, we need'nt create a new entry \o/
-        entry.getManifest().getMainAttributes().putValue("Main-Class", mainClassDeobf);
+            // Since Manifest is mutable, we need'nt create a new entry \o/
+            entry.getManifest().getMainAttributes().putValue("Main-Class", mainClassDeobf);
+        }
+
         return entry;
     }
 

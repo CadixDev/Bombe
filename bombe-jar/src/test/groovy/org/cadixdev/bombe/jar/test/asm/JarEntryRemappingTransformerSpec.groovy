@@ -96,6 +96,18 @@ class JarEntryRemappingTransformerSpec extends Specification {
         deobf.mainAttributes[name('Main-Class')] == 'pkg.Demo'
     }
 
+    def "remaps simple manifest"() {
+        given:
+        // Create a test Manifest
+        def obf = new Manifest()
+        obf.with {
+            mainAttributes[name('Manifest-Version')] = '1.0'
+        }
+
+        // Run it through the transformer
+        TRANSFORMER.transform(new JarManifestEntry(0, obf)).manifest
+    }
+
     def "remaps service config"() {
         given:
         // Create a test service config
