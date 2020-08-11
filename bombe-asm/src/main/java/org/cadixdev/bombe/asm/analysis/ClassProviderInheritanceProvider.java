@@ -33,6 +33,7 @@ package org.cadixdev.bombe.asm.analysis;
 import org.cadixdev.bombe.analysis.InheritanceProvider;
 import org.cadixdev.bombe.asm.jar.ClassProvider;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
 
 import java.util.Optional;
 
@@ -45,10 +46,29 @@ import java.util.Optional;
  */
 public class ClassProviderInheritanceProvider implements InheritanceProvider {
 
+    private final int api;
     private final ClassProvider provider;
 
-    public ClassProviderInheritanceProvider(final ClassProvider provider) {
+    /**
+     * Creates a new inheritance provider backed by a class provider.
+     *
+     * @param api The ASM API version to use
+     * @param provider The class provider
+     * @since 0.3.3
+     */
+    public ClassProviderInheritanceProvider(final int api, final ClassProvider provider) {
+        this.api = api;
         this.provider = provider;
+    }
+
+    /**
+     * Creates a new inheritance provider backed by a class provider, defaulting to
+     * {@link Opcodes#ASM7}.
+     *
+     * @param provider The class provider
+     */
+    public ClassProviderInheritanceProvider(final ClassProvider provider) {
+        this(Opcodes.ASM7, provider);
     }
 
     @Override
@@ -57,7 +77,7 @@ public class ClassProviderInheritanceProvider implements InheritanceProvider {
         if (classBytes == null) return Optional.empty();
 
         final ClassReader reader = new ClassReader(classBytes);
-        final InheritanceClassInfoVisitor classInfoVisitor = new InheritanceClassInfoVisitor();
+        final InheritanceClassInfoVisitor classInfoVisitor = new InheritanceClassInfoVisitor(this.api);
         reader.accept(classInfoVisitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
         return Optional.of(classInfoVisitor.create());
     }
