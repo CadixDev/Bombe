@@ -56,8 +56,8 @@ class InheritanceClassInfoVisitor extends ClassVisitor {
     private final Map<String, InheritanceType> fieldsByName = new HashMap<>();
     private final Map<MethodSignature, InheritanceType> methods = new HashMap<>();
 
-    InheritanceClassInfoVisitor() {
-        super(Opcodes.ASM6);
+    InheritanceClassInfoVisitor(final int api) {
+        super(api);
     }
 
     InheritanceProvider.ClassInfo create() {
