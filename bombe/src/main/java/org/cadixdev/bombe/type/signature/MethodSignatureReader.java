@@ -28,46 +28,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.type;
+package org.cadixdev.bombe.type.signature;
 
 import me.jamiemansfield.string.StringReader;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.cadixdev.bombe.type.MethodDescriptorReader;
 
 /**
- * An {@link StringReader} for reading {@link MethodDescriptor}s
+ * An {@link StringReader} for reading {@link MethodSignature}s
  * from their raw {@link String} representation.
  *
  * @author Jamie Mansfield
- * @since 0.2.0
+ * @since 0.5.0
  */
-public class MethodDescriptorReader extends TypeReader {
+public class MethodSignatureReader extends MethodDescriptorReader {
 
-    public MethodDescriptorReader(final String descriptor) {
-        super(descriptor);
+    public MethodSignatureReader(final String signature) {
+        super(signature);
     }
 
     /**
-     * Reads the next {@link MethodDescriptor} from source.
+     * Reads the next {@link MethodSignature} from source.
      *
      * @return The type
-     * @throws IllegalStateException If the descriptor is invalid
+     * @throws IllegalStateException If the signature is invalid
      */
-    public MethodDescriptor readDescriptor() {
-        final List<FieldType> params = new ArrayList<>();
-
-        if (this.peek() != '(') throw new IllegalStateException("Invalid descriptor provided!");
-        this.advance();
-
-        while (this.available() && this.peek() != ')') {
-            params.add(this.readFieldType());
+    public MethodSignature readSignature() {
+        final int start = this.index();
+        while (this.peek() != '(') {
+            this.advance();
         }
+        final String name = this.substring(start, this.index());
 
-        if (this.peek() != ')') throw new IllegalStateException("Invalid descriptor provided!");
-        this.advance();
-
-        return new MethodDescriptor(params, this.readType());
+        return new MethodSignature(name, this.readDescriptor());
     }
 
 }
