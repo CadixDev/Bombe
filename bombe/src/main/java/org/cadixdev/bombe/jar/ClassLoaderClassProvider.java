@@ -55,6 +55,8 @@ public class ClassLoaderClassProvider implements ClassProvider {
         final String internalName = klass + ".class";
 
         try (final InputStream in = this.loader.getResourceAsStream(internalName)) {
+            if (in == null) return null;
+
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ByteStreams.copy(in, baos);
             return baos.toByteArray();
