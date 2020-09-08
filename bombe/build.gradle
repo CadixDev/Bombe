@@ -3,3 +3,10 @@ dependencies {
     compileOnly "org.ow2.asm:asm-commons:$asmVersion"
     testCompile "org.ow2.asm:asm-commons:$asmVersion"
 }
+
+jar {
+    manifest.attributes(
+      'Automatic-Module-Name': "${project.group}.bombe"
+    )
+}
+
