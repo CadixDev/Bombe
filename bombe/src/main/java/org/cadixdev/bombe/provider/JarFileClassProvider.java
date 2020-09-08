@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.jar;
+package org.cadixdev.bombe.provider;
 
 import org.cadixdev.bombe.util.ByteStreams;
 

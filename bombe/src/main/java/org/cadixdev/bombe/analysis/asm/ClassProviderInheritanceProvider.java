@@ -31,7 +31,7 @@
 package org.cadixdev.bombe.analysis.asm;
 
 import org.cadixdev.bombe.analysis.InheritanceProvider;
-import org.cadixdev.bombe.jar.ClassProvider;
+import org.cadixdev.bombe.provider.ClassProvider;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 
