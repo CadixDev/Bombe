@@ -30,6 +30,8 @@
 
 package org.cadixdev.bombe.jar.asm;
 
+import static java.util.jar.Attributes.Name.MAIN_CLASS;
+
 import org.cadixdev.bombe.jar.JarClassEntry;
 import org.cadixdev.bombe.jar.JarEntryTransformer;
 import org.cadixdev.bombe.jar.JarManifestEntry;
@@ -43,7 +45,6 @@ import org.objectweb.asm.commons.Remapper;
 
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.jar.Attributes;
 import java.util.stream.Collectors;
 
 /**
@@ -86,14 +87,14 @@ public class JarEntryRemappingTransformer implements JarEntryTransformer {
     @Override
     public JarManifestEntry transform(final JarManifestEntry entry) {
         // Remap the Main-Class attribute, if present
-        if (entry.getManifest().getMainAttributes().containsKey(new Attributes.Name("Main-Class"))) {
-            final String mainClassObf = entry.getManifest().getMainAttributes().getValue("Main-Class")
+        if (entry.getManifest().getMainAttributes().containsKey(MAIN_CLASS)) {
+            final String mainClassObf = entry.getManifest().getMainAttributes().getValue(MAIN_CLASS)
                     .replace('.', '/');
             final String mainClassDeobf = this.remapper.map(mainClassObf)
                     .replace('/', '.');
 
-            // Since Manifest is mutable, we need'nt create a new entry \o/
-            entry.getManifest().getMainAttributes().putValue("Main-Class", mainClassDeobf);
+            // Since Manifest is mutable, we needn't create a new entry \o/
+            entry.getManifest().getMainAttributes().put(MAIN_CLASS, mainClassDeobf);
         }
 
         return entry;
