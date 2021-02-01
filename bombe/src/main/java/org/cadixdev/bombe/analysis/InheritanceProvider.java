@@ -432,7 +432,7 @@ public interface InheritanceProvider {
             @Override
             public Set<ClassInfo> provideParents(final InheritanceProvider provider) {
                 if (this.parents == null) {
-                    ClassInfo.super.provideParents(provider, this.parents = new HashSet<>());
+                    super.provideParents(provider, this.parents = new HashSet<>());
                 }
                 return this.parents;
             }

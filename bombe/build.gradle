@@ -1,7 +1,7 @@
 dependencies {
-    compile "me.jamiemansfield:string:$stringVersion"
-    compileOnly "org.ow2.asm:asm-commons:$asmVersion"
-    testCompile "org.ow2.asm:asm-commons:$asmVersion"
+    api "me.jamiemansfield:string:$stringVersion"
+    implementation "org.ow2.asm:asm-commons:$asmVersion"
+    testImplementation "org.ow2.asm:asm-commons:$asmVersion"
 }
 
 jar {

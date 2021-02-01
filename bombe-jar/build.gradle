@@ -1,7 +1,7 @@
 dependencies {
-    compile project(':bombe')
-    compileOnly "org.ow2.asm:asm-commons:$asmVersion"
-    testCompile "org.ow2.asm:asm-commons:$asmVersion"
+    api project(':bombe')
+    implementation "org.ow2.asm:asm-commons:$asmVersion"
+    testImplementation "org.ow2.asm:asm-commons:$asmVersion"
 }
 
 jar {
