@@ -51,7 +51,9 @@ import java.util.stream.Stream;
  *
  * @author Jamie Mansfield
  * @since 0.3.0
+ * @deprecated 0.3.5 - Migrate to Atlas
  */
+@Deprecated
 public final class Jars {
 
     /**
