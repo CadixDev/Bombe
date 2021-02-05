@@ -30,6 +30,9 @@
 
 package org.cadixdev.bombe.jar;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * A visitor for {@link AbstractJarEntry}, allowing them be be
  * transformed.
@@ -89,6 +92,16 @@ public interface JarEntryTransformer {
      */
     default JarServiceProviderConfigurationEntry transform(final JarServiceProviderConfigurationEntry entry) {
         return entry;
+    }
+
+    /**
+     * Provides a list of {@link AbstractJarEntry jar entries} to add into the
+     * processed jar file.
+     *
+     * @return Entries to add into the final jar
+     */
+    default List<AbstractJarEntry> additions() {
+        return Collections.emptyList();
     }
 
 }
