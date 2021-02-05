@@ -127,9 +127,12 @@ public final class Jars {
                 .map(entry -> {
                     for (final JarEntryTransformer transformer : transformers) {
                         entry = entry.accept(transformer);
+
+                        if (entry == null) return null;
                     }
                     return entry;
                 })
+                .filter(Objects::nonNull)
                 .forEach(entry -> {
                     try {
                         if (!packages.contains(entry.getPackage())) {
