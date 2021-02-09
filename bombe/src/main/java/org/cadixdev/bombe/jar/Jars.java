@@ -37,6 +37,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -51,7 +53,9 @@ import java.util.stream.Stream;
  *
  * @author Jamie Mansfield
  * @since 0.3.0
+ * @deprecated 0.3.5 - Migrate to Atlas
  */
+@Deprecated
 public final class Jars {
 
     /**
@@ -120,14 +124,22 @@ public final class Jars {
      * @return The jar output stream
      */
     public static JarOutputStream transform(final JarFile jarFile, final JarOutputStream jos, final JarEntryTransformer... transformers) {
-        final Set<String> packages = new HashSet<>();
-        walk(jarFile)
+        final Stream<AbstractJarEntry> transformations = walk(jarFile)
                 .map(entry -> {
                     for (final JarEntryTransformer transformer : transformers) {
                         entry = entry.accept(transformer);
+
+                        if (entry == null) return null;
                     }
                     return entry;
                 })
+                .filter(Objects::nonNull);
+        final Stream<AbstractJarEntry> additions = Arrays.stream(transformers)
+                .map(JarEntryTransformer::additions)
+                .flatMap(Collection::stream);
+
+        final Set<String> packages = new HashSet<>();
+        Stream.concat(transformations, additions)
                 .forEach(entry -> {
                     try {
                         if (!packages.contains(entry.getPackage())) {

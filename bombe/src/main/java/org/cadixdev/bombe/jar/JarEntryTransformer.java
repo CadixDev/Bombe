@@ -30,6 +30,9 @@
 
 package org.cadixdev.bombe.jar;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * A visitor for {@link AbstractJarEntry}, allowing them be be
  * transformed.
@@ -41,9 +44,12 @@ public interface JarEntryTransformer {
 
     /**
      * Transforms the given class entry.
+     * <p>
+     * It is possible to remove entries by returning {@code null}, when this
+     * occurs no further transformers will process the entry.
      *
      * @param entry The class entry
-     * @return The transformed entry
+     * @return The transformed entry, or {@code null} if the entry should be removed
      */
     default JarClassEntry transform(final JarClassEntry entry) {
         return entry;
@@ -51,9 +57,12 @@ public interface JarEntryTransformer {
 
     /**
      * Transforms the given resource entry.
+     * <p>
+     * It is possible to remove entries by returning {@code null}, when this
+     * occurs no further transformers will process the entry.
      *
      * @param entry The resource entry
-     * @return The transformed entry
+     * @return The transformed entry, or {@code null} if the entry should be removed
      */
     default JarResourceEntry transform(final JarResourceEntry entry) {
         return entry;
@@ -61,9 +70,12 @@ public interface JarEntryTransformer {
 
     /**
      * Transforms the given manifest entry.
+     * <p>
+     * It is possible to remove entries by returning {@code null}, when this
+     * occurs no further transformers will process the entry.
      *
      * @param entry The manifest entry
-     * @return The transformed entry
+     * @return The transformed entry, or {@code null} if the entry should be removed
      */
     default JarManifestEntry transform(final JarManifestEntry entry) {
         return entry;
@@ -71,12 +83,25 @@ public interface JarEntryTransformer {
 
     /**
      * Transforms the given service provider configuration entry.
+     * <p>
+     * It is possible to remove entries by returning {@code null}, when this
+     * occurs no further transformers will process the entry.
      *
      * @param entry The service provider configuration entry
-     * @return The transformed entry
+     * @return The transformed entry, or {@code null} if the entry should be removed
      */
     default JarServiceProviderConfigurationEntry transform(final JarServiceProviderConfigurationEntry entry) {
         return entry;
+    }
+
+    /**
+     * Provides a list of {@link AbstractJarEntry jar entries} to add into the
+     * processed jar file.
+     *
+     * @return Entries to add into the final jar
+     */
+    default List<AbstractJarEntry> additions() {
+        return Collections.emptyList();
     }
 
 }

@@ -30,9 +30,12 @@
 
 package org.cadixdev.bombe.asm.jar;
 
+import static java.util.jar.Attributes.Name.MAIN_CLASS;
+
 import org.cadixdev.bombe.jar.JarClassEntry;
 import org.cadixdev.bombe.jar.JarEntryTransformer;
 import org.cadixdev.bombe.jar.JarManifestEntry;
+import org.cadixdev.bombe.jar.JarResourceEntry;
 import org.cadixdev.bombe.jar.JarServiceProviderConfigurationEntry;
 import org.cadixdev.bombe.jar.ServiceProviderConfiguration;
 import org.objectweb.asm.ClassReader;
@@ -41,7 +44,9 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.jar.Attributes;
 import java.util.stream.Collectors;
@@ -54,6 +59,8 @@ import java.util.stream.Collectors;
  * @since 0.3.0
  */
 public class JarEntryRemappingTransformer implements JarEntryTransformer {
+
+    private static final Attributes.Name SHA_256_DIGEST = new Attributes.Name("SHA-256-Digest");
 
     private final Remapper remapper;
     private final BiFunction<ClassVisitor, Remapper, ClassRemapper> clsRemapper;
@@ -86,14 +93,24 @@ public class JarEntryRemappingTransformer implements JarEntryTransformer {
     @Override
     public JarManifestEntry transform(final JarManifestEntry entry) {
         // Remap the Main-Class attribute, if present
-        if (entry.getManifest().getMainAttributes().containsKey(new Attributes.Name("Main-Class"))) {
-            final String mainClassObf = entry.getManifest().getMainAttributes().getValue("Main-Class")
+        if (entry.getManifest().getMainAttributes().containsKey(MAIN_CLASS)) {
+            final String mainClassObf = entry.getManifest().getMainAttributes().getValue(MAIN_CLASS)
                     .replace('.', '/');
             final String mainClassDeobf = this.remapper.map(mainClassObf)
                     .replace('/', '.');
 
-            // Since Manifest is mutable, we need'nt create a new entry \o/
-            entry.getManifest().getMainAttributes().putValue("Main-Class", mainClassDeobf);
+            // Since Manifest is mutable, we needn't create a new entry \o/
+            entry.getManifest().getMainAttributes().put(MAIN_CLASS, mainClassDeobf);
+        }
+
+        // Remove all signature entries
+        for (final Iterator<Map.Entry<String, Attributes>> it = entry.getManifest().getEntries().entrySet().iterator(); it.hasNext();) {
+            final Map.Entry<String, Attributes> section = it.next();
+            if (section.getValue().remove(SHA_256_DIGEST) != null) {
+                if (section.getValue().isEmpty()) {
+                    it.remove();
+                }
+            }
         }
 
         return entry;
@@ -119,4 +136,15 @@ public class JarEntryRemappingTransformer implements JarEntryTransformer {
         return new JarServiceProviderConfigurationEntry(entry.getTime(), config);
     }
 
+    @Override
+    public JarResourceEntry transform(final JarResourceEntry entry) {
+        // Strip signature files from metadata
+        if (entry.getName().startsWith("META-INF")) {
+            if (entry.getExtension().equals("RSA")
+                || entry.getExtension().equals("SF")) {
+                return null;
+            }
+        }
+        return entry;
+    }
 }
