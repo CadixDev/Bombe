@@ -32,6 +32,7 @@ package org.cadixdev.bombe.jar;
 
 import java.io.IOException;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 
 /**
@@ -42,10 +43,43 @@ import java.util.jar.JarOutputStream;
  */
 public abstract class AbstractJarEntry {
 
+    /**
+     * A {@link #getVersion()} value for jar entries that are at the base
+     * version in the jar.
+     */
+    public static final int UNVERSIONED = -1;
+
+    private static final String META_INF = "META-INF/";
+    private static final String VERSIONS_PREFIX = META_INF + "versions/";
+
     protected final String name;
     protected final long time;
+    private String unversionedName;
+    private int version = UNVERSIONED;
     private String packageName;
     private String simpleName;
+
+    /**
+     * Create a new jar entry for a specific multi-release variant.
+     *
+     * <p>If {@code unversionedName} starts with {@code META-INF}, it will be
+     * treated as being in the base version no matter what value is provided for
+     * {@code version}, to match the behavior of the JDK's {@link JarFile}.</p>
+     *
+     * @param version the Java version number to associate this entry with
+     * @param unversionedName the name without any versioned prefix
+     * @param time the time the entry was created at
+     */
+    protected AbstractJarEntry(final int version, final String unversionedName, final long time) {
+        if (version == UNVERSIONED || unversionedName.startsWith(META_INF)) {
+            this.name = unversionedName;
+        } else {
+            this.version = version;
+            this.unversionedName = unversionedName;
+            this.name = VERSIONS_PREFIX + version + '/' + unversionedName;
+        }
+        this.time = time;
+    }
 
     protected AbstractJarEntry(final String name, final long time) {
         this.name = name;
@@ -54,6 +88,8 @@ public abstract class AbstractJarEntry {
 
     /**
      * Gets the fully-qualified name of the jar entry.
+     *
+     * <p>This method does not have any special handling for multi-release jars.</p>
      *
      * @return The name
      */
@@ -71,6 +107,48 @@ public abstract class AbstractJarEntry {
     }
 
     /**
+     * Get the name of this entry, as it will be seen by a multi-release-aware
+     * jar handler.
+     *
+     * <p>When a file path is in the {@code META-INF/versions/} folder but does
+     * not provide a valid multi-release version, it will be treated as if it
+     * were an ordinary, un-versioned resource.</p>
+     *
+     * <p>This will always handle multi-release paths, even when the
+     * {@code Multi-Release} manifest attribute is set to false.</p>
+     *
+     * @return the full entry name, without any version prefix
+     */
+    public final String getUnversionedName() {
+        if (this.unversionedName != null) return this.unversionedName;
+
+        if (!this.name.startsWith(VERSIONS_PREFIX)) {
+            return this.unversionedName = this.name;
+        }
+        // <version number>/<path>
+        final String trimmed = this.name.substring(VERSIONS_PREFIX.length());
+        final int divider = trimmed.indexOf('/');
+        if (divider == -1) { // malformed, ignore
+            return this.unversionedName = this.name;
+        }
+
+        final String version = trimmed.substring(0, divider);
+        final String unversioned = trimmed.substring(divider + 1);
+        try {
+            if (!unversioned.startsWith(META_INF)) { // Files already within META-INF cannot be versioned
+                final int parsedVersion = Integer.parseInt(version);
+                if (parsedVersion >= 0) {
+                    this.version = parsedVersion;
+                    return this.unversionedName = unversioned;
+                }
+            }
+        } catch (final NumberFormatException ignored) { // invalid integer, treat as unversioned
+            // fall through
+        }
+        return this.unversionedName = this.name;
+    }
+
+    /**
      * Gets the package that contains the jar entry, an empty
      * string if in the root package.
      *
@@ -78,9 +156,10 @@ public abstract class AbstractJarEntry {
      */
     public final String getPackage() {
         if (this.packageName != null) return this.packageName;
-        final int index = this.name.lastIndexOf('/');
+        final String name = this.getUnversionedName();
+        final int index = name.lastIndexOf('/');
         if (index == -1) return this.packageName = "";
-        return this.packageName = this.name.substring(0, index);
+        return this.packageName = name.substring(0, index);
     }
 
     /**
@@ -92,10 +171,26 @@ public abstract class AbstractJarEntry {
         if (this.simpleName != null) return this.simpleName;
         final int packageLength = this.getPackage().isEmpty() ? -1 : this.getPackage().length();
         final int extensionLength = this.getExtension().isEmpty() ? -1 : this.getExtension().length();
-        return this.simpleName = this.name.substring(
+        final String name = this.getUnversionedName();
+        return this.simpleName = name.substring(
                 packageLength + 1,
-                this.name.length() - (extensionLength + 1)
+                name.length() - (extensionLength + 1)
         );
+    }
+
+    /**
+     * If this is a multi-release variant of a class file in a multi-release
+     * jar, the version associated with this variant.
+     *
+     * @return the version, or {@link #UNVERSIONED} if this is the base version,
+     *     or a file that would not be interpreted as a multi-release variant
+     *     within the version folder.
+     * @see #getUnversionedName() for a description of the conditions on multi-release jars
+     */
+    public int getVersion() {
+        if (this.unversionedName != null) return this.version;
+        this.getUnversionedName(); // initialize versions
+        return this.version;
     }
 
     /**
@@ -132,9 +227,9 @@ public abstract class AbstractJarEntry {
     /**
      * Processes the jar entry with the given transformer.
      *
-     * @param vistor The transformer
+     * @param visitor The transformer
      * @return The jar entry
      */
-    public abstract AbstractJarEntry accept(final JarEntryTransformer vistor);
+    public abstract AbstractJarEntry accept(final JarEntryTransformer visitor);
 
 }

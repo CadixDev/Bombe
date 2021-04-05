@@ -78,8 +78,8 @@ public class JarManifestEntry extends AbstractJarEntry {
     }
 
     @Override
-    public JarManifestEntry accept(final JarEntryTransformer vistor) {
-        return vistor.transform(this);
+    public JarManifestEntry accept(final JarEntryTransformer visitor) {
+        return visitor.transform(this);
     }
 
 }

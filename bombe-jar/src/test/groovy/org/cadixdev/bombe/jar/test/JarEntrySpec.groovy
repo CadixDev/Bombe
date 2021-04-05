@@ -31,6 +31,7 @@
 package org.cadixdev.bombe.jar.test
 
 import org.cadixdev.bombe.jar.AbstractJarEntry
+import org.cadixdev.bombe.jar.JarClassEntry
 import org.cadixdev.bombe.jar.JarResourceEntry
 import spock.lang.Specification
 
@@ -41,6 +42,10 @@ class JarEntrySpec extends Specification {
 
     private static final AbstractJarEntry PACKAGED_ENTRY = new JarResourceEntry("pack/beep.boop", 0, null)
     private static final AbstractJarEntry ROOT_ENTRY = new JarResourceEntry("beep.boop", 0, null)
+    private static final AbstractJarEntry VERSION_BY_PATH = new JarClassEntry("META-INF/versions/9/module-info.class", 0, null)
+    private static final AbstractJarEntry VERSION_EXPLICIT = new JarClassEntry(11, "pack/a/b.class", 0, null)
+    private static final AbstractJarEntry VERSION_MALFORMED = new JarClassEntry("META-INF/versions/ab/module-info.class", 0, null)
+    private static final AbstractJarEntry VERSION_UNVERSIONABLE = new JarClassEntry("META-INF/versions/14/META-INF/services/a.b\$Provider", 0, null)
 
     def "reads name correctly"(final AbstractJarEntry entry,
                                final String packageName,
@@ -55,6 +60,24 @@ class JarEntrySpec extends Specification {
         entry          | packageName | simpleName | extension
         PACKAGED_ENTRY | 'pack'      | 'beep'     | 'boop'
         ROOT_ENTRY     | ''          | 'beep'     | 'boop'
+    }
+
+    def "handles multirelease paths correctly"(final AbstractJarEntry entry,
+                                                final String fullName,
+                                                final int version,
+                                                final String name) {
+        expect:
+        entry.name == fullName
+        entry.version == version
+        entry.unversionedName == name
+
+        where:
+        entry                 | fullName                                               | version                      | name
+        PACKAGED_ENTRY        | "pack/beep.boop"                                       | AbstractJarEntry.UNVERSIONED | "pack/beep.boop"
+        VERSION_BY_PATH       | "META-INF/versions/9/module-info.class"                | 9                            | "module-info.class"
+        VERSION_EXPLICIT      | "META-INF/versions/11/pack/a/b.class"                  | 11                           | "pack/a/b.class"
+        VERSION_MALFORMED     | "META-INF/versions/ab/module-info.class"               | AbstractJarEntry.UNVERSIONED | "META-INF/versions/ab/module-info.class"
+        VERSION_UNVERSIONABLE | "META-INF/versions/14/META-INF/services/a.b\$Provider" | AbstractJarEntry.UNVERSIONED | "META-INF/versions/14/META-INF/services/a.b\$Provider"
     }
 
 }

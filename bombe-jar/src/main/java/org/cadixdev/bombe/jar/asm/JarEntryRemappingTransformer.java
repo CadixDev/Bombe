@@ -85,9 +85,9 @@ public class JarEntryRemappingTransformer implements JarEntryTransformer {
         ), 0);
 
         // Create the jar entry
-        final String originalName = entry.getName().substring(0, entry.getName().length() - ".class".length());
+        final String originalName = entry.getUnversionedName().substring(0, entry.getUnversionedName().length() - ".class".length());
         final String name = this.remapper.map(originalName) + ".class";
-        return new JarClassEntry(name, entry.getTime(), writer.toByteArray());
+        return new JarClassEntry(entry.getVersion(), name, entry.getTime(), writer.toByteArray());
     }
 
     @Override

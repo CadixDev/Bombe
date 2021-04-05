@@ -79,8 +79,8 @@ public class JarServiceProviderConfigurationEntry extends AbstractJarEntry {
     }
 
     @Override
-    public final JarServiceProviderConfigurationEntry accept(final JarEntryTransformer vistor) {
-        return vistor.transform(this);
+    public final JarServiceProviderConfigurationEntry accept(final JarEntryTransformer visitor) {
+        return visitor.transform(this);
     }
 
 }
