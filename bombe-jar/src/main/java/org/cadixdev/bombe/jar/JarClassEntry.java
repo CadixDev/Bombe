@@ -42,6 +42,11 @@ public class JarClassEntry extends AbstractJarEntry {
 
     private final byte[] contents;
 
+    public JarClassEntry(final int version, final String unversionedName, final long time, final byte[] contents) {
+        super(version, unversionedName, time);
+        this.contents = contents;
+    }
+
     public JarClassEntry(final String name, final long time, final byte[] contents) {
         super(name, time);
         this.contents = contents;
@@ -58,8 +63,8 @@ public class JarClassEntry extends AbstractJarEntry {
     }
 
     @Override
-    public final JarClassEntry accept(final JarEntryTransformer vistor) {
-        return vistor.transform(this);
+    public final JarClassEntry accept(final JarEntryTransformer visitor) {
+        return visitor.transform(this);
     }
 
 }
