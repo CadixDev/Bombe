@@ -84,6 +84,7 @@ class TypeSpec extends Specification {
 
         where:
         raw | _
+        'Ljava/lang/String' | _
         'Cjava/lang/String;' | _
     }
 
