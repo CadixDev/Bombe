@@ -80,6 +80,28 @@ class JarEntryRemappingTransformerSpec extends Specification {
         node.name == 'pkg/Demo'
     }
 
+    def "remaps multi-release class"() {
+        given:
+        // Create a test class
+        def obf = new ClassWriter(0)
+        obf.visit(Opcodes.V9, Opcodes.ACC_PUBLIC, 'a', null, 'java/lang/Object', null)
+
+        // Run it through the transformer
+        def entry = TRANSFORMER.transform(new JarClassEntry('META-INF/versions/9/a.class', 0, obf.toByteArray()))
+
+        // Use a ClassNode for convenience
+        def node = new ClassNode()
+        def reader = new ClassReader(entry.contents)
+        reader.accept(node, 0)
+
+        expect:
+        entry.name == 'META-INF/versions/9/pkg/Demo.class'
+        entry.version == 9
+        entry.unversionedName == 'pkg/Demo.class'
+        node.name == 'pkg/Demo'
+
+    }
+
     def "remaps manifest"() {
         given:
         // Create a test Manifest

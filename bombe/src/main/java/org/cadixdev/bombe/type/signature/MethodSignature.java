@@ -65,8 +65,7 @@ public class MethodSignature extends MemberSignature {
      * @return The new method signature
      */
     public static MethodSignature of(final String nameAndDescriptor) {
-        int methodIndex = nameAndDescriptor.indexOf('(');
-        return of(nameAndDescriptor.substring(0, methodIndex), nameAndDescriptor.substring(methodIndex));
+        return new MethodSignatureReader(nameAndDescriptor).readSignature();
     }
 
     /**

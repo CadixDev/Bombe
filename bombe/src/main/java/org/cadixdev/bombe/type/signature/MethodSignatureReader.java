@@ -28,45 +28,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.jar;
+package org.cadixdev.bombe.type.signature;
 
-import org.cadixdev.bombe.util.ByteStreams;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import me.jamiemansfield.string.StringReader;
+import org.cadixdev.bombe.type.MethodDescriptorReader;
 
 /**
- * An implementation of {@link ClassProvider} backed by a {@link JarFile}.
+ * An {@link StringReader} for reading {@link MethodSignature}s
+ * from their raw {@link String} representation.
  *
  * @author Jamie Mansfield
- * @since 0.3.0
+ * @since 0.5.0
  */
-public class JarFileClassProvider implements ClassProvider {
+public class MethodSignatureReader extends MethodDescriptorReader {
 
-    private final JarFile jar;
-
-    public JarFileClassProvider(final JarFile jar) {
-        this.jar = jar;
+    public MethodSignatureReader(final String signature) {
+        super(signature);
     }
 
-    @Override
-    public byte[] get(final String klass) {
-        final String internalName = klass + ".class";
-
-        final JarEntry entry = this.jar.getJarEntry(internalName);
-        if (entry == null) return null;
-
-        try (final InputStream in = this.jar.getInputStream(entry)) {
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ByteStreams.copy(in, baos);
-            return baos.toByteArray();
+    /**
+     * Reads the next {@link MethodSignature} from source.
+     *
+     * @return The type
+     * @throws IllegalStateException If the signature is invalid
+     */
+    public MethodSignature readSignature() {
+        final int start = this.index();
+        while (this.peek() != '(') {
+            this.advance();
         }
-        catch (final IOException ignored) {
-            return null;
-        }
+        final String name = this.substring(start, this.index());
+
+        return new MethodSignature(name, this.readDescriptor());
     }
 
 }

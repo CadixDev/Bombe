@@ -122,13 +122,15 @@ public class TypeReader extends StringReader {
      */
     public ObjectType readObjectType() {
         final int start = this.index();
+
+        if (this.peek() != 'L') throw new IllegalStateException("Incomplete descriptor provided!");
         this.advance();
 
         while (this.available() && this.peek() != ';') {
             this.advance();
         }
 
-        if (this.peek() != ';') throw new IllegalStateException("Incomplete descriptor provided!");
+        if (!this.available() || this.peek() != ';') throw new IllegalStateException("Incomplete descriptor provided!");
         this.advance();
 
         return new ObjectType(this.substring(start + 1, this.index() - 1));

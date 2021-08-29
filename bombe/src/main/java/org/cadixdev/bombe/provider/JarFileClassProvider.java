@@ -28,48 +28,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.util;
+package org.cadixdev.bombe.provider;
 
+import org.cadixdev.bombe.util.ByteStreams;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
- * Utility for working with byte streams.
+ * An implementation of {@link ClassProvider} backed by a {@link JarFile}.
  *
- * @author Kyle Wood
+ * @author Jamie Mansfield
  * @since 0.3.0
  */
-public final class ByteStreams {
+public class JarFileClassProvider implements ClassProvider {
 
-    /**
-     * Copy all of the data from the {@code from} input to the {@code to} output.
-     *
-     * @param from The input to copy from.
-     * @param to The output to copy to.
-     * @param buffer The byte array to use as the copy buffer.
-     * @throws IOException If an IO error occurs.
-     */
-    public static void copy(final InputStream from, final OutputStream to, final byte[] buffer) throws IOException {
-        int read;
-        while ((read = from.read(buffer)) != -1) {
-            to.write(buffer, 0, read);
+    private final JarFile jar;
+
+    public JarFileClassProvider(final JarFile jar) {
+        this.jar = jar;
+    }
+
+    @Override
+    public byte[] get(final String klass) {
+        final String internalName = klass + ".class";
+
+        final JarEntry entry = this.jar.getJarEntry(internalName);
+        if (entry == null) return null;
+
+        try (final InputStream in = this.jar.getInputStream(entry)) {
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ByteStreams.copy(in, baos);
+            return baos.toByteArray();
         }
-    }
-
-    /**
-     * Copy all of the data from the {@code from} input to the {@code to} output,
-     * using a default buffer.
-     *
-     * @param from The input to copy from.
-     * @param to The output to copy to.
-     * @throws IOException If an IO error occurs.
-     */
-    public static void copy(final InputStream from, final OutputStream to) throws IOException {
-        copy(from, to, new byte[8192]);
-    }
-
-    private ByteStreams() {
+        catch (final IOException ignored) {
+            return null;
+        }
     }
 
 }

@@ -62,7 +62,7 @@ public final class MethodDescriptor {
      * @return The descriptor
      */
     public static MethodDescriptor of(final String descriptor) {
-        return new MethodDescriptorReader(descriptor).read();
+        return new MethodDescriptorReader(descriptor).readDescriptor();
     }
 
     /**

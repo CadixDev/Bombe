@@ -42,6 +42,11 @@ public class JarResourceEntry extends AbstractJarEntry {
     private final byte[] contents;
     private String extension;
 
+    public JarResourceEntry(final int version, final String unversionedName, final long time, final byte[] contents) {
+        super(version, unversionedName, time);
+        this.contents = contents;
+    }
+
     public JarResourceEntry(final String name, final long time, final byte[] contents) {
         super(name, time);
         this.contents = contents;
@@ -61,8 +66,8 @@ public class JarResourceEntry extends AbstractJarEntry {
     }
 
     @Override
-    public final JarResourceEntry accept(final JarEntryTransformer vistor) {
-        return vistor.transform(this);
+    public final JarResourceEntry accept(final JarEntryTransformer visitor) {
+        return visitor.transform(this);
     }
 
 }

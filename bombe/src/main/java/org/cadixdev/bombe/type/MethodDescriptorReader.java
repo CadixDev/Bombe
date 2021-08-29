@@ -54,7 +54,7 @@ public class MethodDescriptorReader extends TypeReader {
      * @return The type
      * @throws IllegalStateException If the descriptor is invalid
      */
-    public MethodDescriptor read() {
+    public MethodDescriptor readDescriptor() {
         final List<FieldType> params = new ArrayList<>();
 
         if (this.peek() != '(') throw new IllegalStateException("Invalid descriptor provided!");

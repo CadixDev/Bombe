@@ -28,42 +28,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.cadixdev.bombe.jar;
+package org.cadixdev.bombe.provider;
 
-import org.cadixdev.bombe.util.ByteStreams;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.List;
 
 /**
- * An implementation of {@link ClassProvider} backed by a {@link ClassLoader}.
+ * A {@link ClassProvider class provider} backed by many other class providers.
  *
  * @author Jamie Mansfield
- * @since 0.3.0
+ * @since 0.5.0
  */
-public class ClassLoaderClassProvider implements ClassProvider {
+public class CompositeClassProvider implements ClassProvider {
 
-    private final ClassLoader loader;
+    private final List<ClassProvider> providers;
 
-    public ClassLoaderClassProvider(final ClassLoader loader) {
-        this.loader = loader;
+    public CompositeClassProvider(final List<ClassProvider> providers) {
+        this.providers = providers;
     }
 
     @Override
     public byte[] get(final String klass) {
-        final String internalName = klass + ".class";
-
-        try (final InputStream in = this.loader.getResourceAsStream(internalName)) {
-            if (in == null) return null;
-
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ByteStreams.copy(in, baos);
-            return baos.toByteArray();
+        for (final ClassProvider provider : this.providers) {
+            final byte[] raw = provider.get(klass);
+            if (raw != null) return raw;
         }
-        catch (final IOException ignored) {
-            return null;
-        }
+        return null;
     }
 
 }

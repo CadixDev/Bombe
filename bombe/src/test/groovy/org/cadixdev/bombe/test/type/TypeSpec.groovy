@@ -35,6 +35,7 @@ import org.cadixdev.bombe.type.BaseType
 import org.cadixdev.bombe.type.FieldType
 import org.cadixdev.bombe.type.ObjectType
 import org.cadixdev.bombe.type.Type
+import org.cadixdev.bombe.type.TypeReader
 import org.cadixdev.bombe.type.VoidType
 import spock.lang.Specification
 
@@ -72,6 +73,19 @@ class TypeSpec extends Specification {
         raw                              | _
         'Ljava/lang/String;'             | _
         'Lorg/cadixdev/demo/Test$Inner;' | _
+    }
+
+    def "throw on invalid object type"(final String raw) {
+        when:
+        new TypeReader(raw).readObjectType()
+
+        then:
+        thrown(IllegalStateException)
+
+        where:
+        raw | _
+        'Ljava/lang/String' | _
+        'Cjava/lang/String;' | _
     }
 
     def "reads base type"(final String raw, final BaseType expected) {
